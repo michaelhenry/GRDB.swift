@@ -104,11 +104,11 @@ try dbQueue.inDatabase { db in
 try dbQueue.inDatabase { db in
     let rows = try Row.fetchCursor(db, "SELECT * FROM pointOfInterests")
     while let row = try rows.next() {
-        let title: String = row.value(named: "title")
-        let isFavorite: Bool = row.value(named: "favorite")
+        let title: String = row["title"]
+        let isFavorite: Bool = row["favorite"]
         let coordinate = CLLocationCoordinate2D(
-            latitude: row.value(named: "latitude"),
-            longitude: row.value(named: "longitude"))
+            latitude: row["latitude"],
+            longitude: row["longitude"])
     }
 
     let poiCount = try Int.fetchOne(db, "SELECT COUNT(*) FROM pointOfInterests")! // Int
@@ -543,8 +543,8 @@ let personId = person.id
 ```swift
 try dbQueue.inDatabase { db in
     if let row = try Row.fetchOne(db, "SELECT * FROM wines WHERE id = ?", arguments: [1]) {
-        let name: String = row.value(named: "name")
-        let color: Color = row.value(named: "color")
+        let name: String = row["name"]
+        let color: Color = row["color"]
         print(name, color)
     }
 }
@@ -623,7 +623,7 @@ A common way to iterate over the elements of a cursor is to use a `while` loop:
 ```swift
 let rows = try Row.fetchCursor(db, "SELECT ...")
 while let row = try rows.next() {
-    let url: URL = row.value(named: "url")
+    let url: URL = row["url"]
     print(url)
 }
 ```
@@ -632,7 +632,7 @@ You can also use the `forEach` method:
 
 ```swift
 try rows.forEach { row in
-    let url: URL = row.value(named: "url")
+    let url: URL = row["url"]
     print(url)
 }
 ```
@@ -677,8 +677,8 @@ try dbQueue.inDatabase { db in
     
     let rows = try Row.fetchCursor(db, "SELECT * FROM wines")
     while let row = try rows.next() {
-        let name: String = row.value(named: "name")
-        let color: Color = row.value(named: "color")
+        let name: String = row["name"]
+        let color: Color = row["color"]
         print(name, color)
     }
 }
@@ -712,41 +712,41 @@ Unlike row arrays that contain copies of the database rows, row cursors are clos
 **Read column values** by index or column name:
 
 ```swift
-let name: String = row.value(atIndex: 0)     // 0 is the leftmost column
-let name: String = row.value(named: "name")  // Leftmost matching column - lookup is case-insensitive
-let name: String = row.value(Column("name")) // Using query interface's Column
+let name: String = row[0]              // 0 is the leftmost column
+let name: String = row["name"]         // Leftmost matching column - lookup is case-insensitive
+let name: String = row[Column("name")] // Using query interface's Column
 ```
 
 Make sure to ask for an optional when the value may be NULL:
 
 ```swift
-let name: String? = row.value(named: "name")
+let name: String? = row["name"]
 ```
 
 The `value` function returns the type you ask for. See [Values](#values) for more information on supported value types:
 
 ```swift
-let bookCount: Int     = row.value(named: "bookCount")
-let bookCount64: Int64 = row.value(named: "bookCount")
-let hasBooks: Bool     = row.value(named: "bookCount")  // false when 0
+let bookCount: Int     = row["bookCount"]
+let bookCount64: Int64 = row["bookCount"]
+let hasBooks: Bool     = row["bookCount"]  // false when 0
 
-let string: String     = row.value(named: "date")       // "2015-09-11 18:14:15.123"
-let date: Date         = row.value(named: "date")       // Date
-self.date = row.value(named: "date") // Depends on the type of the property.
+let string: String     = row["date"]       // "2015-09-11 18:14:15.123"
+let date: Date         = row["date"]       // Date
+self.date = row["date"] // Depends on the type of the property.
 ```
 
 You can also use the `as` type casting operator:
 
 ```swift
-row.value(...) as Int
-row.value(...) as Int?
+row[...] as Int
+row[...] as Int?
 ```
 
 > :warning: **Warning**: avoid the `as!` and `as?` operators, because they misbehave in the context of type inference (see [rdar://21676393](http://openradar.appspot.com/radar?id=4951414862249984)):
 > 
 > ```swift
-> if let int = row.value(...) as? Int { ... } // BAD - doesn't work
-> if let int = row.value(...) as Int? { ... } // GOOD
+> if let int = row[...] as? Int { ... } // BAD - doesn't work
+> if let int = row[...] as Int? { ... } // GOOD
 > ```
 
 Generally speaking, you can extract the type you need, *provided it can be converted from the underlying SQLite value*:
@@ -763,22 +763,22 @@ Generally speaking, you can extract the type you need, *provided it can be conve
 
     ```swift
     let row = try Row.fetchOne(db, "SELECT NULL")!
-    row.value(atIndex: 0) as Int? // nil
-    row.value(atIndex: 0) as Int  // fatal error: could not convert NULL to Int.
+    row[0] as Int? // nil
+    row[0] as Int  // fatal error: could not convert NULL to Int.
     ```
     
     There is one exception, though: the [DatabaseValue](#databasevalue) type:
     
     ```swift
-    row.value(atIndex: 0) as DatabaseValue // DatabaseValue.null
+    row[0] as DatabaseValue // DatabaseValue.null
     ```
     
 - **Missing columns return nil.**
     
     ```swift
     let row = try Row.fetchOne(db, "SELECT 'foo' AS foo")!
-    row.value(named: "missing") as String? // nil
-    row.value(named: "missing") as String  // fatal error: no such column: missing
+    row["missing"] as String? // nil
+    row["missing"] as String  // fatal error: no such column: missing
     ```
     
     You can explicitly check for a column presence with the `hasColumn` method.
@@ -787,9 +787,9 @@ Generally speaking, you can extract the type you need, *provided it can be conve
     
     ```swift
     let row = try Row.fetchOne(db, "SELECT 'Mom’s birthday'")!
-    row.value(atIndex: 0) as String // "Mom’s birthday"
-    row.value(atIndex: 0) as Date?  // fatal error: could not convert "Mom’s birthday" to Date.
-    row.value(atIndex: 0) as Date   // fatal error: could not convert "Mom’s birthday" to Date.
+    row[0] as String // "Mom’s birthday"
+    row[0] as Date?  // fatal error: could not convert "Mom’s birthday" to Date.
+    row[0] as Date   // fatal error: could not convert "Mom’s birthday" to Date.
     ```
     
     This fatal error can be avoided with the [DatabaseValueConvertible.fromDatabaseValue()](#custom-value-types) method.
@@ -801,7 +801,7 @@ Generally speaking, you can extract the type you need, *provided it can be conve
     ```swift
     let rows = try Row.fetchCursor(db, "SELECT '20 small cigars'")
     while let row = try rows.next() {
-        row.value(atIndex: 0) as Int   // 20
+        row[0] as Int   // 20
     }
     ```
     
@@ -815,8 +815,8 @@ Generally speaking, you can extract the type you need, *provided it can be conve
 You get DatabaseValue just like other value types:
 
 ```swift
-let dbValue: DatabaseValue = row.value(atIndex: 0)
-let dbValue: DatabaseValue = row.value(named: "name")
+let dbValue: DatabaseValue = row[0]
+let dbValue: DatabaseValue = row["name"]
 
 // Check for NULL:
 dbValue.isNull // Bool
@@ -834,12 +834,12 @@ case .blob(let data):       print("Data: \(data)")
 You can extract regular [values](#values) (Bool, Int, String, Date, Swift enums, etc.) from DatabaseValue with the [DatabaseValueConvertible.fromDatabaseValue()](#custom-value-types) method:
 
 ```swift
-let dbValue: DatabaseValue = row.value(named: "bookCount")
+let dbValue: DatabaseValue = row["bookCount"]
 let bookCount   = Int.fromDatabaseValue(dbValue)   // Int?
 let bookCount64 = Int64.fromDatabaseValue(dbValue) // Int64?
 let hasBooks    = Bool.fromDatabaseValue(dbValue)  // Bool?, false when 0
 
-let dbValue: DatabaseValue = row.value(named: "date")
+let dbValue: DatabaseValue = row["date"]
 let string = String.fromDatabaseValue(dbValue)     // "2015-09-11 18:14:15.123"
 let date   = Date.fromDatabaseValue(dbValue)       // Date?
 ```
@@ -848,7 +848,7 @@ let date   = Date.fromDatabaseValue(dbValue)       // Date?
 
 ```swift
 let row = try Row.fetchOne(db, "SELECT 'Mom’s birthday'")!
-let dbValue: DatabaseValue = row.value(at: 0)
+let dbValue: DatabaseValue = row[0]
 let string = String.fromDatabaseValue(dbValue) // "Mom’s birthday"
 let int    = Int.fromDatabaseValue(dbValue)    // nil
 let date   = Date.fromDatabaseValue(dbValue)   // nil
@@ -857,8 +857,8 @@ let date   = Date.fromDatabaseValue(dbValue)   // nil
 This turns out useful when you process untrusted databases. Compare:
 
 ```swift
-let date: Date? = row.value(atIndex: 0)  // fatal error: could not convert "Mom’s birthday" to Date.
-let date = Date.fromDatabaseValue(row.value(atIndex: 0)) // nil
+let date: Date? = row[0]                  // fatal error: could not convert "Mom’s birthday" to Date.
+let date = Date.fromDatabaseValue(row[0]) // nil
 ```
 
 
@@ -887,7 +887,7 @@ Yet rows are not real dictionaries: they are ordered, and may contain duplicate 
 let row = try Row.fetchOne(db, "SELECT 1 AS foo, 2 AS foo")!
 row.columnNames         // ["foo", "foo"]
 row.databaseValues      // [1, 2]
-row.value(named: "foo") // 1 (leftmost matching column)
+row["foo"]              // 1 (leftmost matching column)
 for (columnName, dbValue) in row { ... } // ("foo", 1), ("foo", 2)
 ```
 
@@ -953,8 +953,8 @@ Values can be [extracted from rows](#column-values):
 ```swift
 let rows = try Row.fetchCursor(db, "SELECT * FROM links")
 while let row = try rows.next() {
-    let url: URL = row.value(named: "url")
-    let verified: Bool = row.value(named: "verified")
+    let url: URL = row["url"]
+    let verified: Bool = row["verified"]
 }
 ```
 
@@ -972,8 +972,8 @@ class Link : Record {
     var isVerified: Bool
     
     required init(row: Row) {
-        url = row.value(named: "url")
-        isVerified = row.value(named: "verified")
+        url = row["url"]
+        isVerified = row["verified"]
         super.init(row: row)
     }
     
@@ -999,11 +999,11 @@ let link = try Link.filter(urlColumn == url).fetchOne(db)
 ```swift
 let rows = try Row.fetchCursor(db, "SELECT data, ...")
 while let row = try rows.next() {
-    let data: Data = row.value(named: "data")
+    let data: Data = row["data"]
 }
 ```
 
-At each step of the request iteration, the `row.value` method creates *two copies* of the database bytes: one fetched by SQLite, and another, stored in the Swift Data value.
+At each step of the request iteration, the `row[]` subscript creates *two copies* of the database bytes: one fetched by SQLite, and another, stored in the Swift Data value.
 
 **You have the opportunity to save memory** by not copying the data fetched by SQLite:
 
@@ -1051,7 +1051,7 @@ try db.execute(
     "INSERT INTO persons (creationDate, ...) VALUES (?, ...)",
     arguments: [Date(), ...])
 
-let creationDate: Date = row.value(named: "creationDate")
+let creationDate: Date = row["creationDate"]
 ```
 
 Dates are stored using the format "YYYY-MM-DD HH:MM:SS.SSS" in the UTC time zone. It is precise to the millisecond.
@@ -1088,7 +1088,7 @@ try db.execute(
 
 // Read "1973-09-18"
 let row = try Row.fetchOne(db, "SELECT birthDate ...")!
-let dbComponents: DatabaseDateComponents = row.value(named: "birthDate")
+let dbComponents: DatabaseDateComponents = row["birthDate"]
 dbComponents.format         // .YMD (the actual format found in the database)
 dbComponents.dateComponents // DateComponents
 ```
@@ -1165,8 +1165,8 @@ try db.execute(
 // Read
 let rows = try Row.fetchCursor(db, "SELECT * FROM wines")
 while let row = try rows.next() {
-    let grape: Grape = row.value(named: "grape")
-    let color: Color = row.value(named: "color")
+    let grape: Grape = row["grape"]
+    let color: Color = row["color"]
 }
 ```
 
@@ -1175,10 +1175,10 @@ while let row = try rows.next() {
 ```swift
 let row = try Row.fetchOne(db, "SELECT 'syrah'")!
 
-row.value(atIndex: 0) as String  // "syrah"
-row.value(atIndex: 0) as Grape?  // fatal error: could not convert "syrah" to Grape.
-row.value(atIndex: 0) as Grape   // fatal error: could not convert "syrah" to Grape.
-Grape.fromDatabaseValue(row.value(atIndex: 0))  // nil
+row[0] as String  // "syrah"
+row[0] as Grape?  // fatal error: could not convert "syrah" to Grape.
+row[0] as Grape   // fatal error: could not convert "syrah" to Grape.
+Grape.fromDatabaseValue(row[0])  // nil
 ```
 
 
@@ -1542,8 +1542,8 @@ In this case, the `ColumnMapping` row adapter comes in handy:
 // Fetch a 'produced' column, and consume a 'consumed' column:
 let adapter = ColumnMapping(["consumed": "produced"])
 let row = try Row.fetchOne(db, "SELECT 'Hello' AS produced", adapter: adapter)!
-row.value(named: "consumed") // "Hello"
-row.value(named: "produced") // nil
+row["consumed"] // "Hello"
+row["produced"] // nil
 ```
 
 Row adapters are values that adopt the [RowAdapter](http://groue.github.io/GRDB.swift/docs/1.0/Protocols/RowAdapter.html) protocol. You can implement your own custom adapters ([**:fire: EXPERIMENTAL**](#what-are-experimental-features)), or use one of the four built-in adapters:
@@ -1857,11 +1857,11 @@ struct PointOfInterest {
 
 extension PointOfInterest : RowConvertible {
     init(row: Row) {
-        id = row.value(named: "id")
-        title = row.value(named: "title")
+        id = row["id"]
+        title = row["title"]
         coordinate = CLLocationCoordinate2D(
-            latitude: row.value(named: "latitude"),
-            longitude: row.value(named: "longitude"))
+            latitude: row["latitude"],
+            longitude: row["longitude"])
     }
 }
 ```
@@ -1878,16 +1878,16 @@ extension PointOfInterest : RowConvertible {
     }
     
     init(row: Row) {
-        id = row.value(Columns.id)
-        title = row.value(Columns.title)
+        id = row[Columns.id]
+        title = row[Columns.title]
         coordinate = CLLocationCoordinate2D(
-            latitude: row.value(Columns.latitude),
-            longitude: row.value(Columns.longitude))
+            latitude: row[Columns.latitude],
+            longitude: row[Columns.longitude])
     }
 }
 ```
 
-See [column values](#column-values) for more information about the `row.value()` method.
+See [column values](#column-values) for more information about `row[]` subscript.
 
 > :point_up: **Note**: for performance reasons, the same row argument to `init(row:)` is reused during the iteration of a fetch query. If you want to keep the row for later use, make sure to store a copy: `self.row = row.copy()`.
 
@@ -1909,11 +1909,11 @@ RowConvertible types usually consume rows by column name:
 ```swift
 extension PointOfInterest : RowConvertible {
     init(row: Row) {
-        id = row.value(named: "id")                   // "id"
-        title = row.value(named: "title")             // "title"
+        id = row["id"]                       // "id"
+        title = row["title"]                 // "title"
         coordinate = CLLocationCoordinate2D(
-            latitude: row.value(named: "latitude"),   // "latitude"
-            longitude: row.value(named: "longitude")) // "longitude"
+            latitude: row["latitude"],       // "latitude"
+            longitude: row["longitude"])     // "longitude"
     }
 }
 ```
@@ -2247,11 +2247,11 @@ class PointOfInterest : Record {
     
     /// Initialize from a database row
     required init(row: Row) {
-        id = row.value(named: "id")
-        title = row.value(named: "title")
+        id = row["id"]
+        title = row["title"]
         coordinate = CLLocationCoordinate2D(
-            latitude: row.value(named: "latitude"),
-            longitude: row.value(named: "longitude"))
+            latitude: row["latitude"],
+            longitude: row["longitude"])
         super.init(row: row)
     }
     
@@ -2375,7 +2375,7 @@ When SQLite won't let you provide an explicit primary key (as in [full-text](#fu
         var id: Int64?
         
         init(row: Row) {
-            id = row.value(named: "rowid")
+            id = row["rowid"]
         }
     }
     ```
@@ -2384,7 +2384,7 @@ When SQLite won't let you provide an explicit primary key (as in [full-text](#fu
     
     ```swift
     init(row: Row) {
-        id = row.value(Column.rowID)
+        id = row[Column.rowID]
     }
     ```
     
@@ -3085,8 +3085,8 @@ let maxScore = try Player.select(max(scoreColumn))
 let row = try Player.select(min(scoreColumn), max(scoreColumn))
     .asRequest(of: Row.self)
     .fetchOne(db)!
-let minScore = row.value(atIndex: 0) as Int?
-let maxScore = row.value(atIndex: 1) as Int?
+let minScore = row[0] as Int?
+let maxScore = row[1] as Int?
 ```
 
 More information about `asRequest(of:)` can be found in the [Custom Requests](#custom-requests) chapter.
@@ -3157,8 +3157,8 @@ let maxScore = try Player.select(max(scoreColumn))
 let row = try Player.select(min(scoreColumn), max(scoreColumn))
     .asRequest(of: Row.self)
     .fetchOne(db)!
-let minScore = row.value(atIndex: 0) as Int?
-let maxScore = row.value(atIndex: 1) as Int?
+let minScore = row[0] as Int?
+let maxScore = row[1] as Int?
 ```
 
 More information about `asRequest(of:)` can be found in the [Custom Requests](#custom-requests) chapter.
@@ -4942,26 +4942,26 @@ They uncover programmer errors, false assumptions, and prevent misuses. Here are
     
     ```swift
     // fatal error: could not convert NULL to String.
-    let name: String = row.value(named: "name")
+    let name: String = row["name"]
     ```
     
     Solution: fix the contents of the database, use [NOT NULL constraints](#create-tables), or load an optional:
     
     ```swift
-    let name: String? = row.value(named: "name")
+    let name: String? = row["name"]
     ```
 
 - **The code asks for a Date, when the database contains garbage:**
     
     ```swift
     // fatal error: could not convert "Mom’s birthday" to Date.
-    let date: Date? = row.value(named: "date")
+    let date: Date? = row["date"]
     ```
     
     Solution: fix the contents of the database, or use [DatabaseValue](#databasevalue) to handle all possible cases:
     
     ```swift
-    let dbValue: DatabaseValue = row.value(named: "date")
+    let dbValue: DatabaseValue = row["date"]
     if dbValue.isNull {
         // Handle NULL
     if let date = Date.fromDatabaseValue(dbValue) {
@@ -5011,7 +5011,7 @@ let rows = try Row.fetchCursor(db, sql, arguments: StatementArguments(arguments)
 
 while let row = try rows.next() {
     // Some untrusted database value:
-    let date: Date? = row.value(atIndex: 0)
+    let date: Date? = row[0]
 }
 ```
 
@@ -5032,7 +5032,7 @@ if let arguments = StatementArguments(arguments) {
     var cursor = try Row.fetchCursor(statement)
     while let row = try iterator.next() {
         // Untrusted database content
-        let dbValue: DatabaseValue = row.value(atIndex: 0)
+        let dbValue: DatabaseValue = row[0]
         if dbValue.isNull {
             // Handle NULL
         if let date = Date.fromDatabaseValue(dbValue) {
@@ -5605,9 +5605,9 @@ class Person : Record {
     var email: String
     
     required init(_ row: Row) {
-        id = row.value(named: "id")       // String
-        name = row.value(named: "name")   // String
-        email = row.value(named: "email") // String
+        id = row["id"]       // String
+        name = row["name"]   // String
+        email = row["email"] // String
         super.init()
     }
     
@@ -5632,9 +5632,9 @@ let persons = try Person.fetchAll(db)
 let request = Person.select(idColumn, nameColumn, emailColumn)
 let rows = try Row.fetchCursor(db, request)
 while let row = try rows.next() {
-    let id: Int64 = row.value(atIndex: 0)
-    let name: String = row.value(atIndex: 1)
-    let email: String = row.value(atIndex: 2)
+    let id: Int64 = row[0]
+    let name: String = row[1]
+    let email: String = row[2]
     let person = Person(id: id, name: name, email: email)
     ...
 }
