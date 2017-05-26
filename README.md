@@ -1003,7 +1003,7 @@ while let row = try rows.next() {
 }
 ```
 
-At each step of the request iteration, the `row[]` subscript creates *two copies* of the database bytes: one fetched by SQLite, and another, stored in the Swift Data value.
+At each step of the request iteration, the `row["data"]` expression creates *two copies* of the database bytes: one fetched by SQLite, and another, stored in the Swift Data value.
 
 **You have the opportunity to save memory** by not copying the data fetched by SQLite:
 
@@ -1887,7 +1887,7 @@ extension PointOfInterest : RowConvertible {
 }
 ```
 
-See [column values](#column-values) for more information about `row[]` subscript.
+See [column values](#column-values) for more information about the `row[...]` subscript.
 
 > :point_up: **Note**: for performance reasons, the same row argument to `init(row:)` is reused during the iteration of a fetch query. If you want to keep the row for later use, make sure to store a copy: `self.row = row.copy()`.
 
