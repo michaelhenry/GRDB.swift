@@ -212,7 +212,7 @@ public final class Database {
     
     /// The states that keep track of transaction completions in order to notify
     /// transaction observers.
-    fileprivate enum TransactionHookState {
+    private enum TransactionHookState {
         case pending
         case commit
         case rollback
@@ -297,26 +297,26 @@ public final class Database {
     public var isInsideTransaction: Bool { return isInsideExplicitTransaction || !savepointStack.isEmpty }
     
     /// Set by BEGIN/ROLLBACK/COMMIT transaction statements.
-    fileprivate var isInsideExplicitTransaction: Bool = false
+    private var isInsideExplicitTransaction: Bool = false
     
     /// Set by SAVEPOINT/COMMIT/ROLLBACK/RELEASE savepoint statements.
-    fileprivate var savepointStack = SavepointStack()
+    private var savepointStack = SavepointStack()
     
     /// Traces transaction hooks
-    fileprivate var transactionHookState: TransactionHookState = .pending
+    private var transactionHookState: TransactionHookState = .pending
     
     /// Transaction observers
-    fileprivate var transactionObservers = [ManagedTransactionObserver]()
-    fileprivate var activeTransactionObservers = [ManagedTransactionObserver]()  // subset of transactionObservers, set in updateStatementWillExecute
+    private var transactionObservers = [ManagedTransactionObserver]()
+    private var activeTransactionObservers = [ManagedTransactionObserver]()  // subset of transactionObservers, set in updateStatementWillExecute
     
     /// See setupBusyMode()
     private var busyCallback: BusyCallback?
     
     /// Available functions
-    fileprivate var functions = Set<DatabaseFunction>()
+    private var functions = Set<DatabaseFunction>()
     
     /// Available collations
-    fileprivate var collations = Set<DatabaseCollation>()
+    private var collations = Set<DatabaseCollation>()
     
     /// Schema Cache
     var schemaCache: DatabaseSchemaCache    // internal so that it can be tested
@@ -333,8 +333,8 @@ public final class Database {
         case grdb
         case user
     }
-    fileprivate lazy var grdbStatementCache: StatementCache = StatementCache(database: self)
-    fileprivate lazy var userStatementCache: StatementCache = StatementCache(database: self)
+    private lazy var grdbStatementCache: StatementCache = StatementCache(database: self)
+    private lazy var userStatementCache: StatementCache = StatementCache(database: self)
     
     init(path: String, configuration: Configuration, schemaCache: DatabaseSchemaCache) throws {
         // Error log setup must happen before any database connection
@@ -1075,7 +1075,7 @@ extension DatabaseCollation : Hashable {
 
 #if SQLITE_HAS_CODEC
 extension Database {
-    fileprivate class func set(passphrase: String, forConnection sqliteConnection: SQLiteConnection) throws {
+    private class func set(passphrase: String, forConnection sqliteConnection: SQLiteConnection) throws {
         let data = passphrase.data(using: .utf8)!
         let code = data.withUnsafeBytes { bytes in
             sqlite3_key(sqliteConnection, bytes, Int32(data.count))
@@ -1339,11 +1339,11 @@ extension Database {
         var previousId: Int? = nil
         for row in try Row.fetchAll(self, "PRAGMA foreign_key_list(\(tableName.quotedDatabaseIdentifier))") {
             // row = <Row id:0 seq:0 table:"parents" from:"parentId" to:"id" on_update:"..." on_delete:"..." match:"...">
-            let id: Int = row.value(atIndex: 0)
-            let seq: Int = row.value(atIndex: 1)
-            let table: String = row.value(atIndex: 2)
-            let origin: String = row.value(atIndex: 3)
-            let destination: String? = row.value(atIndex: 4)
+            let id: Int = row[0]
+            let seq: Int = row[1]
+            let table: String = row[2]
+            let origin: String = row[3]
+            let destination: String? = row[4]
             
             if previousId == id {
                 rawForeignKeys[rawForeignKeys.count - 1].mapping.append((origin: origin, destination: destination, seq: seq))
@@ -1353,20 +1353,26 @@ extension Database {
             }
         }
         
-        let foreignKeys = try rawForeignKeys.map { (destinationTable, columnMapping) -> ForeignKeyInfo in
+        // TODO: simplify when SE-0110 is reverted
+        let foreignKeys = try rawForeignKeys.map { rawForeignKey -> ForeignKeyInfo in
+            let (destinationTable, columnMapping) = rawForeignKey
             let orderedMapping = columnMapping
                 .sorted { $0.seq < $1.seq }
                 .map { (origin: $0.origin, destination: $0 .destination) }
             
             let completeMapping: [(origin: String, destination: String)]
-            if orderedMapping.contains(where: { (_, destination) in destination == nil }) {
+            if orderedMapping.contains(where: { $0.destination == nil }) {
                 let pk = try primaryKey(destinationTable)!
-                completeMapping = zip(pk.columns, orderedMapping).map { (pkColumn, arrow) in
-                    (origin: arrow.origin, destination: pkColumn)
+                // TODO: simplify when SE-0110 is reverted
+                completeMapping = zip(pk.columns, orderedMapping).map { tuple in
+                    let (pkColumn, arrow) = tuple
+                    return (origin: arrow.origin, destination: pkColumn)
                 }
             } else {
-                completeMapping = orderedMapping.map { (origin, destination) in
-                    (origin: origin, destination: destination!)
+                // TODO: simplify when SE-0110 is reverted
+                completeMapping = orderedMapping.map { tuple in
+                    let (origin, destination) = tuple
+                    return (origin: origin, destination: destination!)
                 }
             }
             return ForeignKeyInfo(destinationTable: destinationTable, mapping: completeMapping)
@@ -2592,7 +2598,7 @@ private struct CopiedDatabaseEventImpl : DatabaseEventImpl {
             return impl.copy(self)
         }
         
-        fileprivate init(kind: Kind, initialRowID: Int64?, finalRowID: Int64?, impl: DatabasePreUpdateEventImpl) {
+        private init(kind: Kind, initialRowID: Int64?, finalRowID: Int64?, impl: DatabasePreUpdateEventImpl) {
             self.kind = kind
             self.initialRowID = (kind == .update || kind == .delete ) ? initialRowID : nil
             self.finalRowID = (kind == .update || kind == .insert ) ? finalRowID : nil
