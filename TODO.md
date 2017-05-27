@@ -19,7 +19,6 @@ Swift 4
 - [ ] Document support for Decodable
 - [ ] Document Row subscript and Row.value(...) removal
 - [ ] RowConvertible & Decodable: check hasPersistentChangedValues
-- [ ] RowConvertible & Decodable: If possible, decode value types. If not possible, report an issue. 
 
 Not sure
 
