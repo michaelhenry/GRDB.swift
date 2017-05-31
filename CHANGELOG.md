@@ -1,6 +1,29 @@
 Release Notes
 =============
 
+## Swift 4
+
+**New**
+
+- Swift 4
+- Support for the Codable protocol of the standard library ([documentation](https://github.com/groue/GRDB.swift#codable-records))
+
+**Breaking Changes**
+
+- Row values are no longer accessed with the `value()` method. Use subscripting instead:
+
+    ```diff
+     if let row = Row.fetchOne(...) {
+    -    let name: String = row.value(atIndex: 0)
+    -    let name: String = row.value(named: "name")
+    -    let name: String = row.value(Column("name"))
+    +    let name: String = row[0]
+    +    let name: String = row["name"]
+    +    let name: String = row[Column("name")]
+     }
+    ```
+
+
 ## 1.0 :tada:
 
 Released June 20, 2017
