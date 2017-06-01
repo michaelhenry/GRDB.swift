@@ -117,6 +117,16 @@ class GRDBTestCase: XCTestCase {
         XCTAssertTrue(sqlQueries.contains(sql), "Did not execute \(sql)")
     }
     
+    func assert(_ record: MutablePersistable, isEncodedIn row: Row) {
+        for (key, value) in record.persistenceContainer.storage {
+            if let dbValue: DatabaseValue = row.value(named: key) {
+                XCTAssertEqual(dbValue, value?.databaseValue ?? .null)
+            } else {
+                XCTFail("Missing column \(key) in fetched row")
+            }
+        }
+    }
+    
     func sql(_ databaseReader: DatabaseReader, _ request: Request) -> String {
         return try! databaseReader.unsafeRead { db in
             _ = try Row.fetchOne(db, request)

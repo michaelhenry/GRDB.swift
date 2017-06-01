@@ -28,6 +28,8 @@ v1.0 checklit
     - [X] Question the naming of the `request.bound(to:T.self)` method. Prefer... `request..asRequest(of: T.self)`
 - [ ] Make GRDB less stringly-typed. When a user defines a static list of columns for a record type, those columns should be easier to use:
     - [ ] Persistable.persistentDictionary requires string keys, doesn't accept columns
+        - [X] Replace persistentDictionary with encode(to:)
+        - [ ] CHANGELOG
     - [ ] If possible, improve on `Person.filter(Person.email != nil)` or `Person.filter(Person.Column.email != nil)` (see [#186](https://github.com/groue/GRDB.swift/issues/186))
     - [ ] Check [SE-0166](https://github.com/apple/swift-evolution/blob/master/proposals/0166-swift-archival-serialization.md)
 
