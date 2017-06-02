@@ -133,7 +133,7 @@ open class Record : RowConvertible, TableMapping, Persistable {
     ///
     /// - returns: A copy of self.
     open func copy() -> Self {
-        let copy = type(of: self).init(row: Row(persistenceContainer))
+        let copy = type(of: self).init(row: Row(self))
         copy.referenceRow = referenceRow
         return copy
     }
@@ -159,7 +159,7 @@ open class Record : RowConvertible, TableMapping, Persistable {
     /// of the record.
     public var hasPersistentChangedValues: Bool {
         get { return makePersistentChangedValuesIterator().next() != nil }
-        set { referenceRow = newValue ? nil : Row(persistenceContainer) }
+        set { referenceRow = newValue ? nil : Row(self) }
     }
     
     /// A dictionary of changes that have not been saved.
@@ -184,7 +184,7 @@ open class Record : RowConvertible, TableMapping, Persistable {
     // persistentChangedValues properties.
     private func makePersistentChangedValuesIterator() -> AnyIterator<(column: String, old: DatabaseValue?)> {
         let oldRow = referenceRow
-        var newValueIterator = persistenceContainer.makeIterator()
+        var newValueIterator = PersistenceContainer(self).makeIterator()
         return AnyIterator {
             // Loop until we find a change, or exhaust columns:
             while let (column, newValue) = newValueIterator.next() {

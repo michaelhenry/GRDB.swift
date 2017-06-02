@@ -40,6 +40,11 @@ public struct PersistenceContainer {
         storage = [:]
     }
     
+    init(_ record: MutablePersistable) {
+        storage = [:]
+        record.encode(to: &self)
+    }
+    
     var columns: [String] {
         return Array(storage.keys)
     }
@@ -89,6 +94,10 @@ extension PersistenceContainer : Sequence {
 }
 
 extension Row {
+    convenience init(_ record: MutablePersistable) {
+        self.init(PersistenceContainer(record))
+    }
+
     convenience init(_ container: PersistenceContainer) {
         self.init(container.storage)
     }
@@ -362,17 +371,11 @@ extension MutablePersistable {
     
     // MARK: - CRUD Internals
     
-    var persistenceContainer: PersistenceContainer {
-        var container = PersistenceContainer()
-        encode(to: &container)
-        return container
-    }
-    
     /// Return true if record has a non-null primary key
     fileprivate func canUpdate(_ db: Database) throws -> Bool {
         let databaseTableName = type(of: self).databaseTableName
         let primaryKey = try db.primaryKey(databaseTableName) ?? PrimaryKeyInfo.hiddenRowID
-        let container = self.persistenceContainer
+        let container = PersistenceContainer(self)
         for column in primaryKey.columns {
             if let value = container[caseInsensitive: column], !value.databaseValue.isNull {
                 return true
@@ -662,7 +665,7 @@ final class DAO {
     init(_ db: Database, _ record: MutablePersistable) throws {
         let databaseTableName = type(of: record).databaseTableName
         let primaryKey = try db.primaryKey(databaseTableName) ?? PrimaryKeyInfo.hiddenRowID
-        let persistenceContainer = record.persistenceContainer
+        let persistenceContainer = PersistenceContainer(record)
         
         GRDBPrecondition(!persistenceContainer.isEmpty, "\(type(of: record)): invalid empty persistence container")
         

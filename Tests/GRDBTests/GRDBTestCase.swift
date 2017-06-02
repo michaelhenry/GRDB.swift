@@ -118,7 +118,7 @@ class GRDBTestCase: XCTestCase {
     }
     
     func assert(_ record: MutablePersistable, isEncodedIn row: Row) {
-        for (key, value) in record.persistenceContainer.storage {
+        for (key, value) in PersistenceContainer(record).storage {
             if let dbValue: DatabaseValue = row.value(named: key) {
                 XCTAssertEqual(dbValue, value?.databaseValue ?? .null)
             } else {
