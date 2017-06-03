@@ -12,13 +12,19 @@ private struct MutablePersistablePerson : MutablePersistable {
     var name: String?
     var age: Int?
     
+    enum Column : String, ColumnProtocol {
+        // mangle cases
+        case id = "iD"
+        case name = "NAme"
+        case age = "aGe"
+    }
+    
     static let databaseTableName = "persons"
     
     func encode(to container: inout PersistenceContainer) {
-        // mangle cases
-        container["iD"] = id
-        container["NAme"] = name
-        container["aGe"] = age
+        container[Column.id] = id
+        container[Column.name] = name
+        container[Column.age] = age
     }
     
     mutating func didInsert(with rowID: Int64, for column: String?) {
@@ -172,6 +178,23 @@ class MutablePersistableTests: GRDBTestCase {
                 XCTAssertEqual(rows[1].value(named: "name") as String, "Barbara")
                 XCTAssertEqual(rows[1].value(named: "age") as Int, 36)
             }
+            
+            do {
+                person1.name = "Craig"
+                person1.age = 25
+                try person1.update(db, columns: [MutablePersistablePerson.Column.name])
+                XCTAssertEqual(self.lastSQLQuery, "UPDATE \"persons\" SET \"NAme\"='Craig' WHERE \"id\"=1")
+                
+                let rows = try Row.fetchAll(db, "SELECT * FROM persons ORDER BY id")
+                XCTAssertEqual(rows.count, 2)
+                XCTAssertEqual(rows[0].value(named: "id") as Int64, person1.id!)
+                XCTAssertEqual(rows[0].value(named: "name") as String, "Craig")
+                XCTAssertEqual(rows[0].value(named: "age") as Int, 24)
+                XCTAssertEqual(rows[1].value(named: "id") as Int64, person2.id!)
+                XCTAssertEqual(rows[1].value(named: "name") as String, "Barbara")
+                XCTAssertEqual(rows[1].value(named: "age") as Int, 36)
+            }
+            
             
             do {
                 person1.name = "Craig"
@@ -618,6 +641,41 @@ class MutablePersistableTests: GRDBTestCase {
             XCTAssertEqual(saveCount, 0)
             XCTAssertEqual(deleteCount, 1)
             XCTAssertEqual(existsCount, 2)
+        }
+    }
+    
+    // MARK: - ColumnProtocol Support
+    
+    func testColumnProtocolSupport() throws {
+        struct S : MutablePersistable {
+            static let databaseTableName = "table1"
+            let id: Int64?
+            let name: String
+            
+            enum Column : String, ColumnProtocol {
+                case id
+                case name
+            }
+            
+            func encode(to container: inout PersistenceContainer) {
+                container[Column.id] = id
+                container[Column.name] = name
+            }
+        }
+        
+        let dbQueue = try makeDatabaseQueue()
+        try dbQueue.inDatabase { db in
+            try db.create(table: "table1") { t in
+                t.column("id", .integer).primaryKey()
+                t.column("name", .text)
+            }
+            
+            var record = S(id: 123, name: "foo")
+            try record.insert(db)
+            
+            let rows = try Row.fetchAll(db, "SELECT * FROM table1")
+            XCTAssertEqual(rows.count, 1)
+            XCTAssertEqual(rows[0], ["id": 123, "name": "foo"])
         }
     }
 }

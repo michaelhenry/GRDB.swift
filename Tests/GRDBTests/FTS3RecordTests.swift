@@ -12,14 +12,21 @@ private struct Book {
     let title: String
     let author: String
     let body: String
+
+    enum Column : String, ColumnProtocol {
+        case rowID
+        case title
+        case author
+        case body
+    }
 }
 
 extension Book : RowConvertible {
     init(row: Row) {
         id = row.value(Column.rowID)
-        title = row.value(named: "title")
-        author = row.value(named: "author")
-        body = row.value(named: "body")
+        title = row.value(Column.title)
+        author = row.value(Column.author)
+        body = row.value(Column.body)
     }
 }
 
@@ -28,10 +35,10 @@ extension Book : MutablePersistable {
     static let selectsRowID = true
     
     func encode(to container: inout PersistenceContainer) {
-        container[.rowID] = id
-        container["title"] = title
-        container["author"] = author
-        container["body"] =  body
+        container[Column.rowID] = id
+        container[Column.title] = title
+        container[Column.author] = author
+        container[Column.body] =  body
     }
     
     mutating func didInsert(with rowID: Int64, for column: String?) {
@@ -92,6 +99,8 @@ class FTS3RecordTests: GRDBTestCase {
             XCTAssertEqual(try Book.filter(Column("books").match(pattern)).fetchCount(db), 1)
             XCTAssertEqual(try Book.filter(Column("author").match(pattern)).fetchCount(db), 1)
             XCTAssertEqual(try Book.filter(Column("title").match(pattern)).fetchCount(db), 0)
+            XCTAssertEqual(try Book.filter(Book.Column.author.match(pattern)).fetchCount(db), 1)
+            XCTAssertEqual(try Book.filter(Book.Column.title.match(pattern)).fetchCount(db), 0)
         }
     }
 
@@ -108,6 +117,8 @@ class FTS3RecordTests: GRDBTestCase {
             XCTAssertEqual(try Book.filter(Column("books").match(pattern)).fetchCount(db), 0)
             XCTAssertEqual(try Book.filter(Column("author").match(pattern)).fetchCount(db), 0)
             XCTAssertEqual(try Book.filter(Column("title").match(pattern)).fetchCount(db), 0)
+            XCTAssertEqual(try Book.filter(Book.Column.author.match(pattern)).fetchCount(db), 0)
+            XCTAssertEqual(try Book.filter(Book.Column.title.match(pattern)).fetchCount(db), 0)
         }
     }
 

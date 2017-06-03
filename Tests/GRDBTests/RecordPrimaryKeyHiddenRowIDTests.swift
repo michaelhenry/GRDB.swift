@@ -50,7 +50,7 @@ private class Person : Record {
     }
     
     override func encode(to container: inout PersistenceContainer) {
-        container[.rowID] = id
+        container[Column.rowID] = id
         container["name"] = name
         container["age"] = age
         container["creationDate"] = creationDate

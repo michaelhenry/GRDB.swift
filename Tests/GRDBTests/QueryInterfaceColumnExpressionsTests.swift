@@ -7,11 +7,11 @@ import XCTest
     import GRDB
 #endif
 
-private enum Col : String, ColumnProtocol {
-    case id
-    case name
-    case age
-    case readerId
+private struct Col {
+    static let id = Column("id")
+    static let name = Column("name")
+    static let age = Column("age")
+    static let readerId = Column("readerId")
 }
 
 private struct Reader : TableMapping {
@@ -19,7 +19,7 @@ private struct Reader : TableMapping {
 }
 private let tableRequest = Reader.all()
 
-class QueryInterfaceExpressionsTests: GRDBTestCase {
+class QueryInterfaceColumnExpressionsTests: GRDBTestCase {
     
     var collation: DatabaseCollation!
     var customFunction: DatabaseFunction!
@@ -71,7 +71,7 @@ class QueryInterfaceExpressionsTests: GRDBTestCase {
         
         // Array.contains(): IN operator
         XCTAssertEqual(
-            sql(dbQueue, tableRequest.filter([Col.id].contains(Col.id) as SQLExpression)),
+            sql(dbQueue, tableRequest.filter([Col.id].contains(Col.id))),
             "SELECT * FROM \"readers\" WHERE (\"id\" IN (\"id\"))")
         
         // EmptyCollection.contains(): 0
@@ -91,7 +91,7 @@ class QueryInterfaceExpressionsTests: GRDBTestCase {
         
         // Sequence.contains(): IN operator
         XCTAssertEqual(
-            sql(dbQueue, tableRequest.filter(AnySequence([Col.id]).contains(Col.id) as SQLExpression)),
+            sql(dbQueue, tableRequest.filter(AnySequence([Col.id]).contains(Col.id))),
             "SELECT * FROM \"readers\" WHERE (\"id\" IN (\"id\"))")
         
         // !Sequence.contains(): NOT IN operator
@@ -549,7 +549,7 @@ class QueryInterfaceExpressionsTests: GRDBTestCase {
             sql(dbQueue, tableRequest.filter(!(10 == 10))),
             "SELECT * FROM \"readers\" WHERE 0")
         XCTAssertEqual(
-            sql(dbQueue, tableRequest.filter(!((Col.age == Col.age) as SQLExpression))),
+            sql(dbQueue, tableRequest.filter(!(Col.age == Col.age))),
             "SELECT * FROM \"readers\" WHERE (\"age\" <> \"age\")")
         
         XCTAssertEqual(
@@ -559,7 +559,7 @@ class QueryInterfaceExpressionsTests: GRDBTestCase {
             sql(dbQueue, tableRequest.filter(!(nil == Col.age))),
             "SELECT * FROM \"readers\" WHERE (\"age\" IS NOT NULL)")
         XCTAssertEqual(
-            sql(dbQueue, tableRequest.filter(!((Col.age == Col.age) as SQLExpression))),
+            sql(dbQueue, tableRequest.filter(!(Col.age == Col.age))),
             "SELECT * FROM \"readers\" WHERE (\"age\" <> \"age\")")
     }
     

@@ -315,7 +315,7 @@ extension Row {
     /// the same name, the leftmost column is considered.
     ///
     /// The result is nil if the row does not contain the column.
-    public func value(_ column: Column) -> DatabaseValueConvertible? {
+    public func value(_ column: ColumnProtocol) -> DatabaseValueConvertible? {
         return value(named: column.name)
     }
     
@@ -327,7 +327,7 @@ extension Row {
     /// If the column is missing or if the SQLite value is NULL, the result is
     /// nil. Otherwise the SQLite value is converted to the requested type
     /// `Value`. Should this conversion fail, a fatal error is raised.
-    public func value<Value: DatabaseValueConvertible>(_ column: Column) -> Value? {
+    public func value<Value: DatabaseValueConvertible>(_ column: ColumnProtocol) -> Value? {
         return value(named: column.name)
     }
     
@@ -343,7 +343,7 @@ extension Row {
     /// This method exists as an optimization opportunity for types that adopt
     /// StatementColumnConvertible. It *may* trigger SQLite built-in conversions
     /// (see https://www.sqlite.org/datatype3.html).
-    public func value<Value: DatabaseValueConvertible & StatementColumnConvertible>(_ column: Column) -> Value? {
+    public func value<Value: DatabaseValueConvertible & StatementColumnConvertible>(_ column: ColumnProtocol) -> Value? {
         return value(named: column.name)
     }
     
@@ -356,7 +356,7 @@ extension Row {
     ///
     /// This method crashes if the fetched SQLite value is NULL, or if the
     /// SQLite value can not be converted to `Value`.
-    public func value<Value: DatabaseValueConvertible>(_ column: Column) -> Value {
+    public func value<Value: DatabaseValueConvertible>(_ column: ColumnProtocol) -> Value {
         return value(named: column.name)
     }
     
@@ -373,7 +373,7 @@ extension Row {
     /// This method exists as an optimization opportunity for types that adopt
     /// StatementColumnConvertible. It *may* trigger SQLite built-in conversions
     /// (see https://www.sqlite.org/datatype3.html).
-    public func value<Value: DatabaseValueConvertible & StatementColumnConvertible>(_ column: Column) -> Value {
+    public func value<Value: DatabaseValueConvertible & StatementColumnConvertible>(_ column: ColumnProtocol) -> Value {
         return value(named: column.name)
     }
     
@@ -421,7 +421,7 @@ extension Row {
     ///
     /// The returned data does not owns its bytes: it must not be used longer
     /// than the row's lifetime.
-    public func dataNoCopy(_ column: Column) -> Data? {
+    public func dataNoCopy(_ column: ColumnProtocol) -> Data? {
         return dataNoCopy(named: column.name)
     }
 }

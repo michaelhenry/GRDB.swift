@@ -32,7 +32,7 @@ extension SQLBinaryOperator {
     static let match = SQLBinaryOperator("MATCH")
 }
 
-func ~= (_ lhs: SQLExpressible, _ rhs: Column) -> SQLExpression {
+func ~= (_ lhs: SQLExpressible, _ rhs: ColumnProtocol) -> SQLExpression {
     return SQLExpressionBinary(.match, rhs, lhs)
 }
 

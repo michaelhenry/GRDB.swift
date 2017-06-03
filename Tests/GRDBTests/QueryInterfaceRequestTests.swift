@@ -7,11 +7,11 @@ import XCTest
     import GRDB
 #endif
 
-private struct Col {
-    static let id = Column("id")
-    static let name = Column("name")
-    static let age = Column("age")
-    static let readerId = Column("readerId")
+private enum Col : String, ColumnProtocol {
+    case id
+    case name
+    case age
+    case readerId
 }
 
 private struct Reader : TableMapping {

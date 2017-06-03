@@ -44,7 +44,7 @@ extension TableMapping {
     }
 }
 
-extension Column {
+extension ColumnProtocol {
     /// A matching SQL expression with the `MATCH` SQL operator.
     ///
     ///     // content MATCH '...'

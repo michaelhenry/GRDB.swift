@@ -31,7 +31,7 @@ public struct PersistenceContainer {
     }
     
     /// TODO
-    public subscript(_ column: Column) -> DatabaseValueConvertible? {
+    public subscript(_ column: ColumnProtocol) -> DatabaseValueConvertible? {
         get { return self[column.name] }
         set { self[column.name] = newValue }
     }
@@ -317,7 +317,7 @@ extension MutablePersistable {
     /// - throws: A DatabaseError is thrown whenever an SQLite error occurs.
     ///   PersistenceError.recordNotFound is thrown if the primary key does not
     ///   match any row in the database.
-    public func update<Sequence: Swift.Sequence>(_ db: Database, columns: Sequence) throws where Sequence.Iterator.Element == Column {
+    public func update<Sequence: Swift.Sequence>(_ db: Database, columns: Sequence) throws where Sequence.Iterator.Element : ColumnProtocol {
         try update(db, columns: Set(columns.map { $0.name }))
     }
     

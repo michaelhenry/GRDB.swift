@@ -28,7 +28,7 @@ extension Book : MutablePersistable {
     static let selectsRowID = true
     
     func encode(to container: inout PersistenceContainer) {
-        container[.rowID] = id
+        container[Column.rowID] = id
         container["title"] = title
         container["author"] = author
         container["body"] = body

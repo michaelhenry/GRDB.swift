@@ -41,7 +41,7 @@ class RowTestCase: GRDBTestCase {
         }
     }
     
-    func assertRowRawValueEqual<T: Equatable>(_ row: Row, column: Column, value: T) {
+    func assertRowRawValueEqual<T: Equatable>(_ row: Row, column: ColumnProtocol, value: T) {
         // form 1
         let v = row.value(column)
         XCTAssertEqual(v as! T, value)
@@ -93,7 +93,7 @@ class RowTestCase: GRDBTestCase {
         }
     }
     
-    func assertRowConvertedValueEqual<T: Equatable & DatabaseValueConvertible>(_ row: Row, column: Column, value: T) {
+    func assertRowConvertedValueEqual<T: Equatable & DatabaseValueConvertible>(_ row: Row, column: ColumnProtocol, value: T) {
         // form 1
         XCTAssertEqual(row.value(column) as T, value)
         
@@ -147,7 +147,7 @@ class RowTestCase: GRDBTestCase {
         }
     }
     
-    func assertRowConvertedValueEqual<T: Equatable & DatabaseValueConvertible & StatementColumnConvertible>(_ row: Row, column: Column, value: T) {
+    func assertRowConvertedValueEqual<T: Equatable & DatabaseValueConvertible & StatementColumnConvertible>(_ row: Row, column: ColumnProtocol, value: T) {
         // form 1
         XCTAssertEqual(row.value(column) as T, value)
         

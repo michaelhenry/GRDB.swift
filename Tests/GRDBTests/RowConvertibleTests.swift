@@ -344,4 +344,27 @@ class RowConvertibleTests: GRDBTestCase {
             }
         }
     }
+    
+    // MARK: - ColumnProtocol Support
+    
+    func testColumnProtocolSupport() {
+        struct S : RowConvertible {
+            let id: Int64?
+            let name: String
+            
+            enum Column : String, ColumnProtocol {
+                case id
+                case name
+            }
+            
+            init(row: Row) {
+                id = row.value(Column.id)
+                name = row.value(Column.name)
+            }
+        }
+        
+        let record = S(row: ["id": 1, "name": "foo"])
+        XCTAssertEqual(record.id, 1)
+        XCTAssertEqual(record.name, "foo")
+    }
 }
