@@ -25,6 +25,7 @@ Associations
 - [ ] Recursive associations
 - [ ] .order(annotation.count)
 - [ ] FTS4/5 External Content Full-Text Tables
+- [ ] Author.deleteAll(Author.books)
 - [ ] Refactor requests so that:
     - [ ] `including` always means that values are co-fetched, regardless of the association:
     
