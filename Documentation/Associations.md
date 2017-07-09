@@ -106,3 +106,44 @@ migrator.registerMigration("BooksAndAuthors") { db in
     }
 }
 ```
+
+> :point_up: **Note**: The BelongsTo association wants a non-optional associated record. In our example, each book must have its author.
+
+
+### BelongsToOptional
+
+The *BelongsToOptional* association also sets up a one-to-one connection from a record type to another record type, such as each instance of the declaring record "belongs to" an instance of the other record. Unlike the *BelongsTo* association, the associated record is optional.
+
+For example, if your application includes authors and books, and each book is assigned zero or one author, not more, you'd declare the association this way:
+
+```swift
+class Author: Record {
+    ...
+}
+
+class Book: Record {
+    static let author = belongsTo(optional: Author.self)
+    ...
+}
+```
+
+![BelongsTo](https://cdn.rawgit.com/groue/GRDB.swift/Graph/Documentation/Images/BelongsToSchema.svg)
+
+The matching [migration](http://github.com/groue/GRDB.swift#migrations) would look like:
+
+```swift
+migrator.registerMigration("BooksAndAuthors") { db in
+    try db.create(table: "authors") { t in
+        t.column("id", .integer).primaryKey()
+        t.column("name", .text)
+    }
+    try db.create(table: "books") { t in
+        t.column("id", .integer).primaryKey()
+        t.column("authorId", .integer)
+            .indexed()
+            .references("authors", onDelete: .cascade)
+        t.column("title", .text)
+    }
+}
+```
+
