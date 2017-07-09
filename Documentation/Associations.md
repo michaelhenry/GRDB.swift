@@ -90,6 +90,10 @@ A book **belongs to** its author:
 
 ![BelongsToSchema](https://cdn.rawgit.com/groue/GRDB.swift/Graph/Documentation/Images/BelongsToSchema.svg)
 
+¹ `authorId` is a *foreign key* to the `authors` table. It is *not null* to enforce the presence of a book's author.
+
+² `id` is the *primary key* of the `authors` table.
+
 The matching [migration](http://github.com/groue/GRDB.swift#migrations) would look like:
 
 ```swift
@@ -102,7 +106,6 @@ migrator.registerMigration("BooksAndAuthors") { db in
         t.column("id", .integer).primaryKey()
         t.column("authorId", .integer)
             .notNull()
-            .indexed()
             .references("authors", onDelete: .cascade)
         t.column("title", .text)
     }
@@ -131,6 +134,10 @@ A book **belongs to** its **optional** author:
 
 ![BelongsToSchema](https://cdn.rawgit.com/groue/GRDB.swift/Graph/Documentation/Images/BelongsToSchema.svg)
 
+¹ `authorId` is a *foreign key* to the `authors` table. It can be null in order to allow anonymously published books.
+
+² `id` is the *primary key* of the `authors` table.
+
 The matching [migration](http://github.com/groue/GRDB.swift#migrations) would look like:
 
 ```swift
@@ -142,7 +149,6 @@ migrator.registerMigration("BooksAndAuthors") { db in
     try db.create(table: "books") { t in
         t.column("id", .integer).primaryKey()
         t.column("authorId", .integer)
-            .indexed()
             .references("authors", onDelete: .cascade)
         t.column("title", .text)
     }
@@ -170,6 +176,10 @@ class DemographicProfile: Record {
 A country **has one** demographic profile:
 
 ![HasOneSchema](https://cdn.rawgit.com/groue/GRDB.swift/Graph/Documentation/Images/HasOneSchema.svg)
+
+¹ `code` is the *primary key* of the `countries` table.
+
+² `countryCode` is a *foreign key* to the `countries` table. It is *uniquely indexed* to guarantee the unicity of a country's profile.
 
 The matching [migration](http://github.com/groue/GRDB.swift#migrations) would look like:
 
@@ -212,6 +222,10 @@ A country **has one optional** demographic profile:
 
 ![HasOneSchema](https://cdn.rawgit.com/groue/GRDB.swift/Graph/Documentation/Images/HasOneSchema.svg)
 
+¹ `code` is the *primary key* of the `countries` table.
+
+² `countryCode` is a *foreign key* to the `countries` table. It is *uniquely indexed* to guarantee the unicity of a country's profile.
+
 The matching [migration](http://github.com/groue/GRDB.swift#migrations) would look like:
 
 ```swift
@@ -251,6 +265,10 @@ class Book: Record {
 An author **has many** books:
 
 ![HasManySchema](https://cdn.rawgit.com/groue/GRDB.swift/Graph/Documentation/Images/HasManySchema.svg)
+
+¹ `id` is the *primary key* of the `authors` table.
+
+² `authorId` is a *foreign key* to the `authors` table. It is *indexed* to ease the selection of books belonging to a specific author.
 
 The matching [migration](http://github.com/groue/GRDB.swift#migrations) would look like:
 
