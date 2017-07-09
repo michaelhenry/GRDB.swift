@@ -41,39 +41,39 @@
                 </g>
                 <g id="Field" mask="url(#mask-3)">
                     <g transform="translate(0.000000, 31.000000)">
-                        <text id="name" fill="none" font-family="SFUIText-Bold, SF UI Text" font-size="14" font-weight="bold">
+                        <text id="name" fill="none" font-family="SFUIText-Semibold, SF UI Text" font-size="14" font-weight="500">
                             <tspan x="10" y="17" fill="#000000">id</tspan>
                         </text>
                         <text id="type" fill="none" font-family="SFUIText-Regular, SF UI Text" font-size="14" font-weight="normal">
                             <tspan x="100" y="17" fill="#000000">integer</tspan>
                         </text>
-                        <rect id="Rectangle" fill-opacity="0.33" fill="#000000" fill-rule="evenodd" x="0" y="0" width="200" height="1"></rect>
+                        <rect id="Rectangle" fill-opacity="0.12" fill="#000000" fill-rule="evenodd" x="0" y="0" width="200" height="1"></rect>
                     </g>
                 </g>
                 <g id="Field" mask="url(#mask-3)">
                     <g transform="translate(0.000000, 55.000000)">
-                        <text id="name" fill="none" font-family="SFUIText-Bold, SF UI Text" font-size="14" font-weight="bold">
+                        <text id="name" fill="none" font-family="SFUIText-Semibold, SF UI Text" font-size="14" font-weight="500">
                             <tspan x="10" y="17" fill="#000000">authorId</tspan>
                         </text>
                         <text id="type" fill="none" font-family="SFUIText-Regular, SF UI Text" font-size="14" font-weight="normal">
                             <tspan x="100" y="17" fill="#000000">integer</tspan>
                         </text>
-                        <rect id="Rectangle" fill-opacity="0.33" fill="#000000" fill-rule="evenodd" x="0" y="0" width="200" height="1"></rect>
+                        <rect id="Rectangle" fill-opacity="0.12" fill="#000000" fill-rule="evenodd" x="0" y="0" width="200" height="1"></rect>
                     </g>
                 </g>
                 <g id="Field" mask="url(#mask-3)">
                     <g transform="translate(0.000000, 79.000000)">
-                        <text id="name" fill="none" font-family="SFUIText-Bold, SF UI Text" font-size="14" font-weight="bold">
+                        <text id="name" fill="none" font-family="SFUIText-Semibold, SF UI Text" font-size="14" font-weight="500">
                             <tspan x="10" y="17" fill="#000000">title</tspan>
                         </text>
                         <text id="type" fill="none" font-family="SFUIText-Regular, SF UI Text" font-size="14" font-weight="normal">
                             <tspan x="100" y="17" fill="#000000">text</tspan>
                         </text>
-                        <rect id="Rectangle" fill-opacity="0.33" fill="#000000" fill-rule="evenodd" x="0" y="0" width="200" height="1"></rect>
+                        <rect id="Rectangle" fill-opacity="0.12" fill="#000000" fill-rule="evenodd" x="0" y="0" width="200" height="1"></rect>
                     </g>
                 </g>
-                <text id="books" mask="url(#mask-3)" font-family="SFUIText-Bold, SF UI Text" font-size="14" font-weight="bold" fill="#000000">
-                    <tspan x="78.7436523" y="21">books</tspan>
+                <text id="books" mask="url(#mask-3)" font-family="SFUIText-Semibold, SF UI Text" font-size="14" font-weight="500" fill="#000000">
+                    <tspan x="79.2358398" y="21">books</tspan>
                 </text>
             </g>
             <g id="Table-Copy-2" transform="translate(250.000000, 0.000000)">
@@ -88,35 +88,35 @@
                 </g>
                 <g id="Field" mask="url(#mask-6)">
                     <g transform="translate(0.000000, 31.000000)">
-                        <text id="name" fill="none" font-family="SFUIText-Bold, SF UI Text" font-size="14" font-weight="bold">
+                        <text id="name" fill="none" font-family="SFUIText-Semibold, SF UI Text" font-size="14" font-weight="500">
                             <tspan x="10" y="17" fill="#000000">id</tspan>
                         </text>
                         <text id="type" fill="none" font-family="SFUIText-Regular, SF UI Text" font-size="14" font-weight="normal">
                             <tspan x="100" y="17" fill="#000000">integer</tspan>
                         </text>
-                        <rect id="Rectangle" fill-opacity="0.33" fill="#000000" fill-rule="evenodd" x="0" y="0" width="200" height="1"></rect>
+                        <rect id="Rectangle" fill-opacity="0.12" fill="#000000" fill-rule="evenodd" x="0" y="0" width="200" height="1"></rect>
                     </g>
                 </g>
                 <g id="Field" mask="url(#mask-6)">
                     <g transform="translate(0.000000, 55.000000)">
-                        <text id="name" fill="none" font-family="SFUIText-Bold, SF UI Text" font-size="14" font-weight="bold">
+                        <text id="name" fill="none" font-family="SFUIText-Semibold, SF UI Text" font-size="14" font-weight="500">
                             <tspan x="10" y="17" fill="#000000">name</tspan>
                         </text>
                         <text id="type" fill="none" font-family="SFUIText-Regular, SF UI Text" font-size="14" font-weight="normal">
                             <tspan x="100" y="17" fill="#000000">text</tspan>
                         </text>
-                        <rect id="Rectangle" fill-opacity="0.33" fill="#000000" fill-rule="evenodd" x="0" y="0" width="200" height="1"></rect>
+                        <rect id="Rectangle" fill-opacity="0.12" fill="#000000" fill-rule="evenodd" x="0" y="0" width="200" height="1"></rect>
                     </g>
                 </g>
                 <g id="Field" mask="url(#mask-6)">
                     <g transform="translate(0.000000, 79.000000)">
-                        <text id="name" fill="none" font-family="SFUIText-Bold, SF UI Text" font-size="14" font-weight="bold"></text>
+                        <text id="name" fill="none" font-family="SFUIText-Semibold, SF UI Text" font-size="14" font-weight="500"></text>
                         <text id="type" fill="none" font-family="SFUIText-Regular, SF UI Text" font-size="14" font-weight="normal"></text>
-                        <rect id="Rectangle" fill-opacity="0.33" fill="#000000" fill-rule="evenodd" x="0" y="0" width="200" height="1"></rect>
+                        <rect id="Rectangle" fill-opacity="0.12" fill="#000000" fill-rule="evenodd" x="0" y="0" width="200" height="1"></rect>
                     </g>
                 </g>
-                <text id="authors" mask="url(#mask-6)" font-family="SFUIText-Bold, SF UI Text" font-size="14" font-weight="bold" fill="#000000">
-                    <tspan x="72.8442383" y="21">authors</tspan>
+                <text id="authors" mask="url(#mask-6)" font-family="SFUIText-Semibold, SF UI Text" font-size="14" font-weight="500" fill="#000000">
+                    <tspan x="73.6098633" y="21">authors</tspan>
                 </text>
             </g>
             <g id="Oval">
