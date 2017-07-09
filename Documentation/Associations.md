@@ -86,4 +86,4 @@ class Book: Record {
 }
 ```
 
-    ![BelongsTo](Images/BelongsTo.svg)
+![BelongsTo](Images/BelongsTo.svg)
