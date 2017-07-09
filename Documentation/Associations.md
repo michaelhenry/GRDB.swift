@@ -95,7 +95,7 @@ A book **belongs to** its author:
 The matching [migration](http://github.com/groue/GRDB.swift#migrations) would look like:
 
 ```swift
-migrator.registerMigration("BooksAndAuthors") { db in
+migrator.registerMigration("Books and Authors") { db in
     try db.create(table: "authors") { t in
         t.column("id", .integer).primaryKey()
         t.column("name", .text)
@@ -137,7 +137,7 @@ A book **belongs to** its **optional** author:
 The matching [migration](http://github.com/groue/GRDB.swift#migrations) would look like:
 
 ```swift
-migrator.registerMigration("BooksAndAuthors") { db in
+migrator.registerMigration("Books and Authors") { db in
     try db.create(table: "authors") { t in
         t.column("id", .integer).primaryKey()
         t.column("name", .text)
@@ -178,7 +178,7 @@ A country **has one** demographic profile:
 The matching [migration](http://github.com/groue/GRDB.swift#migrations) would look like:
 
 ```swift
-migrator.registerMigration("BooksAndAuthors") { db in
+migrator.registerMigration("Countries and DemographicProfiles") { db in
     try db.create(table: "countries") { t in
         t.column("code", .text).primaryKey()
         t.column("name", .text)
@@ -221,7 +221,7 @@ A country **has one optional** demographic profile:
 The matching [migration](http://github.com/groue/GRDB.swift#migrations) would look like:
 
 ```swift
-migrator.registerMigration("BooksAndAuthors") { db in
+migrator.registerMigration("Countries and DemographicProfiles") { db in
     try db.create(table: "countries") { t in
         t.column("code", .text).primaryKey()
         t.column("name", .text)
@@ -263,7 +263,7 @@ An author **has many** books:
 The matching [migration](http://github.com/groue/GRDB.swift#migrations) would look like:
 
 ```swift
-migrator.registerMigration("BooksAndAuthors") { db in
+migrator.registerMigration("Books and Authors") { db in
     try db.create(table: "authors") { t in
         t.column("id", .integer).primaryKey()
         t.column("name", .text)
@@ -313,7 +313,7 @@ A country **has many** citizens **through** passports:
 The matching [migration](http://github.com/groue/GRDB.swift#migrations) would look like:
 
 ```swift
-migrator.registerMigration("BooksAndAuthors") { db in
+migrator.registerMigration("Countries, Passports, and Citizens") { db in
     try db.create(table: "countries") { t in
         t.column("code", .text).primaryKey()
         t.column("name", .text)
@@ -322,7 +322,7 @@ migrator.registerMigration("BooksAndAuthors") { db in
         t.column("id", .integer).primaryKey()
         t.column("name", .text)
     }
-    try db.create(table: "demographicProfiles") { t in
+    try db.create(table: "passports") { t in
         t.column("countryCode", .text)
             .notNull()
             .references("countries", onDelete: .cascade)
