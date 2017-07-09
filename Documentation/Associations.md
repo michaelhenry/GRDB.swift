@@ -86,6 +86,4 @@ class Book: Record {
 }
 ```
 
-<center>
 ![BelongsTo](https://raw.githubusercontent.com/groue/GRDB.swift/Graph/Documentation/Images/BelongsTo.svg)
-</center>
