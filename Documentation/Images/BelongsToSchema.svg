@@ -56,7 +56,7 @@
                             <tspan x="10" y="17" fill="#000000">authorId</tspan>
                         </text>
                         <text id="type" fill="none" font-family="SFUIText-Regular, SF UI Text" font-size="14" font-weight="normal">
-                            <tspan x="110" y="17" fill="#000000">integer</tspan>
+                            <tspan x="110" y="17" fill="#000000">integer¹</tspan>
                         </text>
                         <rect id="Rectangle" fill-opacity="0.12" fill="#000000" fill-rule="evenodd" x="0" y="0" width="200" height="1"></rect>
                     </g>
@@ -92,7 +92,7 @@
                             <tspan x="10" y="17" fill="#000000">id</tspan>
                         </text>
                         <text id="type" fill="none" font-family="SFUIText-Regular, SF UI Text" font-size="14" font-weight="normal">
-                            <tspan x="110" y="17" fill="#000000">integer</tspan>
+                            <tspan x="110" y="17" fill="#000000">integer²</tspan>
                         </text>
                         <rect id="Rectangle" fill-opacity="0.12" fill="#000000" fill-rule="evenodd" x="0" y="0" width="200" height="1"></rect>
                     </g>
