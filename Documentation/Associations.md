@@ -109,8 +109,6 @@ migrator.registerMigration("BooksAndAuthors") { db in
 }
 ```
 
-> :point_up: **Note**: The BelongsTo association wants a non-optional associated record. In our example, each book must have its author.
-
 
 ### BelongsToOptional
 
