@@ -87,3 +87,22 @@ class Book: Record {
 ```
 
 ![BelongsTo](https://cdn.rawgit.com/groue/GRDB.swift/Graph/Documentation/Images/BelongsTo.svg)
+
+The matching [migration](http://github.com/groue/GRDB.swift#migrations) would look like:
+
+```swift
+migrator.registerMigration("BooksAndAuthors") { db in
+    try db.create(table: "authors") { t in
+        t.column("id", .integer).primaryKey()
+        t.column("name", .text)
+    }
+    try db.create(table: "books") { t in
+        t.column("id", .integer).primaryKey()
+        t.column("authorId", .integer)
+            .notNull()
+            .indexed()
+            .references("authors", onDelete: .cascade)
+        t.column("title", .text)
+    }
+}
+```
