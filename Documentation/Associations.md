@@ -1,6 +1,8 @@
 GRDB Associations
 =================
 
+> [**:fire: EXPERIMENTAL**](http://github.com/groue/GRDB.swift#what-are-experimental-features): GRDB associations are young, and not stabilized yet. To help them becoming stable, [your feedback](https://github.com/groue/GRDB.swift/issues) is greatly appreciated.
+
 **An association is a connection between two [Record](http://github.com/groue/GRDB.swift#records) types.** It helps your code perform common operations in an easier way.
 
 For example, consider an application that defines two record types for authors and books. Each author can have many books:
@@ -46,6 +48,8 @@ let allAuthorsWithTheirBooks = try dbQueue.inDatabase { db in
 }
 ```
 
+Associations bring simpler APIs for a lot more operations. We'll introduce below the various kinds of associations, and provide the reference to their methods and options.
+
 
 ## The Types of Associations
 
@@ -59,3 +63,7 @@ GRDB handles eight types of associations:
 - HasOneOptional
 - HasOneThrough
 - HasOneOptionalThrough
+
+An association declares a link from a record type to another, as in "one book *belongs to* its author". It instructs GRDB to use the primary and foreign keys declared in the database as support for Swift methods.
+
+Choosing between the eight types of associations
