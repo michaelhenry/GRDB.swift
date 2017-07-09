@@ -55,14 +55,14 @@ Associations bring simpler APIs for a lot more operations. We'll introduce below
 
 GRDB handles eight types of associations:
 
-- BelongsTo
-- BelongsToOptional
-- HasMany
-- HasManyThrough
-- HasOne
-- HasOneOptional
-- HasOneThrough
-- HasOneOptionalThrough
+- [BelongsTo](#belongsto)
+- [BelongsToOptional](#belongstooptional)
+- [HasMany](#hasmany)
+- [HasManyThrough](#hasmanythrough)
+- [HasOne](#hasone)
+- [HasOneOptional](#hasoneoptional)
+- [HasOneThrough](#hasonethrough)
+- [HasOneOptionalThrough](#hasoneoptionalthrough)
 
 An association declares a link from a record type to another, as in "one book *belongs to* its author". It instructs GRDB to use the primary and foreign keys declared in the database as support for Swift methods.
 
@@ -85,6 +85,8 @@ class Book: Record {
     ...
 }
 ```
+
+A book **belongs to** its author:
 
 ![BelongsToSchema](https://cdn.rawgit.com/groue/GRDB.swift/Graph/Documentation/Images/BelongsToSchema.svg)
 
@@ -127,6 +129,8 @@ class Book: Record {
 }
 ```
 
+A book **belongs to** its **optional** author:
+
 ![BelongsToSchema](https://cdn.rawgit.com/groue/GRDB.swift/Graph/Documentation/Images/BelongsToSchema.svg)
 
 The matching [migration](http://github.com/groue/GRDB.swift#migrations) would look like:
@@ -163,6 +167,8 @@ class Book: Record {
     ...
 }
 ```
+
+An author **has many** books:
 
 ![HasManySchema](https://cdn.rawgit.com/groue/GRDB.swift/Graph/Documentation/Images/HasManySchema.svg)
 
