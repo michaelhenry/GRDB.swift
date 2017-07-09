@@ -86,6 +86,4 @@ class Book: Record {
 }
 ```
 
-<center>
     ![BelongsTo](Images/BelongsTo.svg)
-</center>
