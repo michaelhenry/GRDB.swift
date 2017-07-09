@@ -335,3 +335,4 @@ migrator.registerMigration("BooksAndAuthors") { db in
 }
 ```
 
+> :point_up: **Note**: the example above defines a *HasManyThrough* association by linking a *HasMany* association and a *BelongsTo* association. In general, any two associations that share the same intermediate type can be used to define a *HasManyThrough* association.
