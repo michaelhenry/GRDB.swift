@@ -66,4 +66,26 @@ GRDB handles eight types of associations:
 
 An association declares a link from a record type to another, as in "one book *belongs to* its author". It instructs GRDB to use the primary and foreign keys declared in the database as support for Swift methods.
 
-Choosing between the eight types of associations
+Each one of the eight types of associations is appropriate for a particular database situation.
+
+
+### BelongsTo
+
+The *BelongsTo* association sets up a one-to-one connection from a record type to another record type, such as each instance of the declaring record "belongs to" an instance of the other record.
+
+For example, if your application includes authors and books, and each book is assigned exactly one author, you'd declare the association this way:
+
+```swift
+class Author: Record {
+    ...
+}
+
+class Book: Record {
+    static let author = belongsTo(Author.self)
+    ...
+}
+```
+
+<center>
+    ![BelongsTo](Images/BelongsTo.svg)
+</center>
