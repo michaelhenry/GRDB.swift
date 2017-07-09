@@ -152,6 +152,88 @@ migrator.registerMigration("BooksAndAuthors") { db in
 ```
 
 
+### HasOne
+
+The *HasOne* association also sets up a one-to-one connection from a record type to another record type, but with different semantics, and underlying database schema. It it usually used when an entity has been denormalized into two database tables.
+
+For example, if your application includes countries and their demographic profiles, and each country has exactly one demographic profile, you'd declare the association this way:
+
+```swift
+class Country: Record {
+    static let profile = hasOne(DemographicProfile.self)
+    ...
+}
+
+class DemographicProfile: Record {
+    ...
+}
+```
+
+A country **has one** demographic profile:
+
+![HasOneSchema](https://cdn.rawgit.com/groue/GRDB.swift/Graph/Documentation/Images/HasOneSchema.svg)
+
+The matching [migration](http://github.com/groue/GRDB.swift#migrations) would look like:
+
+```swift
+migrator.registerMigration("BooksAndAuthors") { db in
+    try db.create(table: "countries") { t in
+        t.column("code", .text).primaryKey()
+        t.column("name", .text)
+    }
+    try db.create(table: "demographicProfiles") { t in
+        t.column("id", .integer).primaryKey()
+        t.column("countryCode", .text)
+            .unique()
+            .references("countries", onDelete: .cascade)
+        t.column("population", .integer)
+        t.column("density", .double)
+    }
+}
+```
+
+
+### HasOneOptional
+
+The *HasOneOptional* association also sets up a one-to-one connection from a record type to another record type. Unlike the *HasOne* association, the associated record is optional.
+
+For example, if your application includes countries and their demographic profiles, and each country has zero or one demographic profile, you'd declare the association this way:
+
+```swift
+class Country: Record {
+    static let profile = hasOne(optional: DemographicProfile.self)
+    ...
+}
+
+class DemographicProfile: Record {
+    ...
+}
+```
+
+A country **has one optional** demographic profile:
+
+![HasOneSchema](https://cdn.rawgit.com/groue/GRDB.swift/Graph/Documentation/Images/HasOneSchema.svg)
+
+The matching [migration](http://github.com/groue/GRDB.swift#migrations) would look like:
+
+```swift
+migrator.registerMigration("BooksAndAuthors") { db in
+    try db.create(table: "countries") { t in
+        t.column("code", .text).primaryKey()
+        t.column("name", .text)
+    }
+    try db.create(table: "demographicProfiles") { t in
+        t.column("id", .integer).primaryKey()
+        t.column("countryCode", .text)
+            .unique()
+            .references("countries", onDelete: .cascade)
+        t.column("population", .integer)
+        t.column("density", .double)
+    }
+}
+```
+
+
 ### HasMany
 
 The *HasMany* association indicates a one-to-many connection between two record types, such as each instance of the declaring record "has many" instances of the other record. You'll often find this association on the other side of a *BelongsTo* or *BelongsToOptional* association.
@@ -189,3 +271,4 @@ migrator.registerMigration("BooksAndAuthors") { db in
     }
 }
 ```
+
