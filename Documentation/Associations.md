@@ -76,12 +76,12 @@ The *BelongsTo* association sets up a one-to-one connection from a record type t
 For example, if your application includes authors and books, and each book is assigned exactly one author, you'd declare the association this way:
 
 ```swift
-class Author: Record {
+class Book: Record {
+    static let author = belongsTo(Author.self)
     ...
 }
 
-class Book: Record {
-    static let author = belongsTo(Author.self)
+class Author: Record {
     ...
 }
 ```
@@ -118,12 +118,12 @@ The *BelongsToOptional* association also sets up a one-to-one connection from a 
 For example, if your application includes authors and books, and each book is assigned zero or one author, not more, you'd declare the association this way:
 
 ```swift
-class Author: Record {
+class Book: Record {
+    static let author = belongsTo(optional: Author.self)
     ...
 }
 
-class Book: Record {
-    static let author = belongsTo(optional: Author.self)
+class Author: Record {
     ...
 }
 ```
@@ -274,6 +274,60 @@ migrator.registerMigration("BooksAndAuthors") { db in
             .indexed()
             .references("authors", onDelete: .cascade)
         t.column("title", .text)
+    }
+}
+```
+
+
+### HasManyThrough
+
+The *HasManyThrough* association sets up a one-to-many connection between two record types, *through* a third record. You declare this association by linking two other associations together.
+
+For example, consider an application that includes countries, passports, and citizens. You'd declare a *HasManyThrough* association between countries and citizens by linking a *HasMany* association from countries to passports, and a *BelongsTo* association from passports to citizens:
+
+```swift
+class Country : Record {
+    static let passports = hasMany(Passport.self)
+    static let citizens = hasMany(Passport.citizen, through: passports)
+    ...
+}
+
+class Passport : Record {
+    static let citizen = belongsTo(Citizen.self)
+    ...
+}
+
+class Citizen : Record {
+    ...
+}
+```
+
+A country **has many** citizens **through** passports:
+
+![HasManyThroughSchema](https://cdn.rawgit.com/groue/GRDB.swift/Graph/Documentation/Images/HasManyThroughSchema.svg)
+
+¹ `countryCode` is a *foreign key* to the `countries` table.
+
+² `citizenId` is a *foreign key* to the `citizens` table.
+
+The matching [migration](http://github.com/groue/GRDB.swift#migrations) would look like:
+
+```swift
+migrator.registerMigration("BooksAndAuthors") { db in
+    try db.create(table: "countries") { t in
+        t.column("code", .text).primaryKey()
+        t.column("name", .text)
+    }
+    try db.create(table: "citizens") { t in
+        t.column("id", .integer).primaryKey()
+        t.column("name", .text)
+    }
+    try db.create(table: "demographicProfiles") { t in
+        t.column("countryCode", .text)
+            .references("countries", onDelete: .cascade)
+        t.column("citizenId", .text)
+            .references("citizens", onDelete: .cascade)
+        t.column("issueDate", .date)
     }
 }
 ```
