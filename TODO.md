@@ -16,6 +16,30 @@
 - [ ] Prevent dbPool.read { dbPool.read { } } if not done yet
 - [ ] DatabaseReader.unsafeReentrantRead. Make sure DatabaseReader.unsafeReentrantRead *never* dead-locks
 
+Associations
+
+- [ ] Index a column right at its creation: `create(table: "...") { t in t.column("name", .text).indexed() }`
+- [ ] has_many :through
+- [ ] has_one :through
+- [ ] has_and_belongs_to_many
+- [ ] Recursive associations
+- [ ] .order(annotation.count)
+- [ ] FTS4/5 External Content Full-Text Tables
+- [ ] Refactor requests so that:
+    - [ ] `including` always means that values are co-fetched, regardless of the association:
+    
+        - Country.all().including(Country.citizens) // (Country, [Citizen])
+        - Child.all().including(Child.parent)       // (Child, Parent)
+        
+        The goal is that the method does not reflect the SQL, but the effect: here, all associated models are fetched along
+    
+    - [ ] to-one associations declare the optionality of the associated model
+    
+        - Child.all().including(Child.parent)         // (Child, Parent)
+        - Child.all().including(Child.optionalParent) // (Child, Parent?)
+        
+        The goal is to have optionality declared right away, as a reminder of the database schema.
+
 Not sure
 
 - [ ] Support for resource values (see https://developer.apple.com/library/ios/qa/qa1719/_index.html)

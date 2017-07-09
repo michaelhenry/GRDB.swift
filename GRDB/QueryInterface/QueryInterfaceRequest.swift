@@ -28,25 +28,7 @@ extension QueryInterfaceRequest : TypedRequest {
     }
 }
 
-extension QueryInterfaceRequest {
-    
-    // MARK: Request Derivation
-    
-    /// A new QueryInterfaceRequest with a new net of selected columns.
-    ///
-    ///     // SELECT id, email FROM persons
-    ///     var request = Person.all()
-    ///     request = request.select(Column("id"), Column("email"))
-    ///
-    /// Any previous selection is replaced:
-    ///
-    ///     // SELECT email FROM persons
-    ///     request
-    ///         .select(Column("id"))
-    ///         .select(Column("email"))
-    public func select(_ selection: SQLSelectable...) -> QueryInterfaceRequest<T> {
-        return select(selection)
-    }
+extension QueryInterfaceRequest : RequestDerivable {
     
     /// A new QueryInterfaceRequest with a new net of selected columns.
     ///
@@ -60,26 +42,10 @@ extension QueryInterfaceRequest {
     ///     request
     ///         .select([Column("id")])
     ///         .select([Column("email")])
-    public func select(_ selection: [SQLSelectable]) -> QueryInterfaceRequest<T> {
+    public func select(_ selection: [SQLSelectable]) -> QueryInterfaceRequest {
         var query = self.query
         query.selection = selection
         return QueryInterfaceRequest(query: query)
-    }
-    
-    /// A new QueryInterfaceRequest with a new net of selected columns.
-    ///
-    ///     // SELECT id, email FROM persons
-    ///     var request = Person.all()
-    ///     request = request.select(sql: "id, email")
-    ///
-    /// Any previous selection is replaced:
-    ///
-    ///     // SELECT email FROM persons
-    ///     request
-    ///         .select(sql: "id")
-    ///         .select(sql: "email")
-    public func select(sql: String, arguments: StatementArguments? = nil) -> QueryInterfaceRequest<T> {
-        return select(SQLExpressionLiteral(sql, arguments: arguments))
     }
     
     /// A new QueryInterfaceRequest which returns distinct rows.
@@ -91,7 +57,7 @@ extension QueryInterfaceRequest {
     ///     // SELECT DISTINCT name FROM persons
     ///     var request = Person.select(Column("name"))
     ///     request = request.distinct()
-    public func distinct() -> QueryInterfaceRequest<T> {
+    public func distinct() -> QueryInterfaceRequest {
         var query = self.query
         query.isDistinct = true
         return QueryInterfaceRequest(query: query)
@@ -103,7 +69,7 @@ extension QueryInterfaceRequest {
     ///     // SELECT * FROM persons WHERE email = 'arthur@example.com'
     ///     var request = Person.all()
     ///     request = request.filter(Column("email") == "arthur@example.com")
-    public func filter(_ predicate: SQLExpressible) -> QueryInterfaceRequest<T> {
+    public func filter(_ predicate: SQLExpressible) -> QueryInterfaceRequest {
         var query = self.query
         if let whereExpression = query.whereExpression {
             query.whereExpression = whereExpression && predicate.sqlExpression
@@ -113,36 +79,16 @@ extension QueryInterfaceRequest {
         return QueryInterfaceRequest(query: query)
     }
     
-    /// A new QueryInterfaceRequest with the provided *predicate* added to the
-    /// eventual set of already applied predicates.
-    ///
-    ///     // SELECT * FROM persons WHERE email = 'arthur@example.com'
-    ///     var request = Person.all()
-    ///     request = request.filter(sql: "email = ?", arguments: ["arthur@example.com"])
-    public func filter(sql: String, arguments: StatementArguments? = nil) -> QueryInterfaceRequest<T> {
-        return filter(SQLExpressionLiteral(sql, arguments: arguments))
-    }
-    
     /// A new QueryInterfaceRequest grouped according to *expressions*.
-    public func group(_ expressions: SQLExpressible...) -> QueryInterfaceRequest<T> {
-        return group(expressions)
-    }
-    
-    /// A new QueryInterfaceRequest grouped according to *expressions*.
-    public func group(_ expressions: [SQLExpressible]) -> QueryInterfaceRequest<T> {
+    public func group(_ expressions: [SQLExpressible]) -> QueryInterfaceRequest {
         var query = self.query
         query.groupByExpressions = expressions.map { $0.sqlExpression }
         return QueryInterfaceRequest(query: query)
     }
     
-    /// A new QueryInterfaceRequest with a new grouping.
-    public func group(sql: String, arguments: StatementArguments? = nil) -> QueryInterfaceRequest<T> {
-        return group(SQLExpressionLiteral(sql, arguments: arguments))
-    }
-    
     /// A new QueryInterfaceRequest with the provided *predicate* added to the
     /// eventual set of already applied predicates.
-    public func having(_ predicate: SQLExpressible) -> QueryInterfaceRequest<T> {
+    public func having(_ predicate: SQLExpressible) -> QueryInterfaceRequest {
         var query = self.query
         if let havingExpression = query.havingExpression {
             query.havingExpression = (havingExpression && predicate).sqlExpression
@@ -150,29 +96,6 @@ extension QueryInterfaceRequest {
             query.havingExpression = predicate.sqlExpression
         }
         return QueryInterfaceRequest(query: query)
-    }
-    
-    /// A new QueryInterfaceRequest with the provided *sql* added to the
-    /// eventual set of already applied predicates.
-    public func having(sql: String, arguments: StatementArguments? = nil) -> QueryInterfaceRequest<T> {
-        return having(SQLExpressionLiteral(sql, arguments: arguments))
-    }
-    
-    /// A new QueryInterfaceRequest with the provided *orderings*.
-    ///
-    ///     // SELECT * FROM persons ORDER BY name
-    ///     var request = Person.all()
-    ///     request = request.order(Column("name"))
-    ///
-    /// Any previous ordering is replaced:
-    ///
-    ///     // SELECT * FROM persons ORDER BY name
-    ///     request
-    ///         .order(Column("email"))
-    ///         .reversed()
-    ///         .order(Column("name"))
-    public func order(_ orderings: SQLOrderingTerm...) -> QueryInterfaceRequest<T> {
-        return order(orderings)
     }
     
     /// A new QueryInterfaceRequest with the provided *orderings*.
@@ -188,27 +111,11 @@ extension QueryInterfaceRequest {
     ///         .order([Column("email")])
     ///         .reversed()
     ///         .order([Column("name")])
-    public func order(_ orderings: [SQLOrderingTerm]) -> QueryInterfaceRequest<T> {
+    public func order(_ orderings: [SQLOrderingTerm]) -> QueryInterfaceRequest {
         var query = self.query
         query.orderings = orderings
         query.isReversed = false
         return QueryInterfaceRequest(query: query)
-    }
-    
-    /// A new QueryInterfaceRequest with the provided *sql* used for sorting.
-    ///
-    ///     // SELECT * FROM persons ORDER BY name
-    ///     var request = Person.all()
-    ///     request = request.order(sql: "name")
-    ///
-    /// Any previous ordering is replaced:
-    ///
-    ///     // SELECT * FROM persons ORDER BY name
-    ///     request
-    ///         .order(sql: "email")
-    ///         .order(sql: "name")
-    public func order(sql: String, arguments: StatementArguments? = nil) -> QueryInterfaceRequest<T> {
-        return order([SQLExpressionLiteral(sql, arguments: arguments)])
     }
     
     /// A new QueryInterfaceRequest sorted in reversed order.
@@ -216,7 +123,7 @@ extension QueryInterfaceRequest {
     ///     // SELECT * FROM persons ORDER BY name DESC
     ///     var request = Person.all().order(Column("name"))
     ///     request = request.reversed()
-    public func reversed() -> QueryInterfaceRequest<T> {
+    public func reversed() -> QueryInterfaceRequest {
         var query = self.query
         query.isReversed = !query.isReversed
         return QueryInterfaceRequest(query: query)
@@ -225,12 +132,21 @@ extension QueryInterfaceRequest {
     /// A QueryInterfaceRequest which fetches *limit* rows, starting
     /// at *offset*.
     ///
-    ///     // SELECT * FROM persons LIMIT 1
+    ///     // SELECT * FROM persons LIMIT 10 OFFSET 20
     ///     var request = Person.all()
-    ///     request = request.limit(1)
-    public func limit(_ limit: Int, offset: Int? = nil) -> QueryInterfaceRequest<T> {
+    ///     request = request.limit(10, offset: 20)
+    public func limit(_ limit: Int, offset: Int?) -> QueryInterfaceRequest {
         var query = self.query
         query.limit = SQLLimit(limit: limit, offset: offset)
+        return QueryInterfaceRequest(query: query)
+    }
+    
+    /// TODO
+    public func aliased(_ alias: String) -> QueryInterfaceRequest {
+        var qualifier = SQLSourceQualifier()
+        let query = self.query.qualified(by: &qualifier)
+        qualifier.alias = alias
+        qualifier.userProvided = true
         return QueryInterfaceRequest(query: query)
     }
 }
@@ -272,7 +188,7 @@ extension TableMapping {
         } else {
             selection = [SQLStar()]
         }
-        return QueryInterfaceRequest(query: QueryInterfaceSelectQueryDefinition(select: selection, from: .table(name: databaseTableName, alias: nil)))
+        return QueryInterfaceRequest(query: QueryInterfaceSelectQueryDefinition(select: selection, from: .table(databaseTableName)))
     }
     
     /// Creates a QueryInterfaceRequest which fetches no record.

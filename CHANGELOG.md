@@ -48,6 +48,9 @@ The table creation API has been enhanced:
     }
     ```
 
+- Associations
+
+
 **API diff**
 
 ```diff
@@ -61,6 +64,75 @@ The table creation API has been enhanced:
  }
 ```
 
+ extension QueryInterfaceRequest {
+-    func select(_ selection: SQLSelectable...) -> QueryInterfaceRequest
+-    func select(sql: String, arguments: StatementArguments? = nil) -> QueryInterfaceRequest
+-    func filter(sql: String, arguments: StatementArguments? = nil) -> QueryInterfaceRequest
+-    func group(_ expressions: SQLExpressible...) -> QueryInterfaceRequest
+-    func group(sql: String, arguments: StatementArguments? = nil) -> QueryInterfaceRequest
+-    func having(sql: String, arguments: StatementArguments? = nil) -> QueryInterfaceRequest
+-    func order(_ orderings: SQLOrderingTerm...) -> QueryInterfaceRequest
+-    func order(sql: String, arguments: StatementArguments? = nil) -> QueryInterfaceRequest
+ }
+ 
++extension QueryInterfaceRequest : RequestDerivable { }
+
++protocol RequestDerivable {
++    func select(_ selection: [SQLSelectable]) -> Self
++    func distinct() -> Self
++    func filter(_ predicate: SQLExpressible) -> Self
++    func group(_ expressions: [SQLExpressible]) -> Self
++    func having(_ predicate: SQLExpressible) -> Self
++    func order(_ orderings: [SQLOrderingTerm]) -> Self
++    func reversed() -> Self
++    func limit(_ limit: Int, offset: Int?) -> Self
++    func aliased(_ alias: String) -> Self
++}
+ 
++extension RequestDerivable {
++    func select(_ selection: SQLSelectable...) -> Self
++    func select(sql: String, arguments: StatementArguments? = nil) -> Self
++    func filter(sql: String, arguments: StatementArguments? = nil) -> Self
++    func group(_ expressions: SQLExpressible...) -> Self
++    func group(sql: String, arguments: StatementArguments? = nil) -> Self
++    func having(sql: String, arguments: StatementArguments? = nil) -> Self
++    func order(_ orderings: SQLOrderingTerm...) -> Self
++    func order(sql: String, arguments: StatementArguments? = nil) -> Self
++    func limit(_ limit: Int) -> Self
++}
+
+ extension Row {
++    var containsNonNullValue: Bool
+ }
+
+ struct Column {
++    func from(_ tableAlias: String) -> Column
+ }
+```
+
+
+**Experimental API diff**
+
+```diff
+ extension Request {
++    func adapted(_ adapter: RowAdapter) -> AdaptedRequest<Self>
+ }
+ 
+ protocol SQLOrderingTerm {
++    func qualified(by qualifier: SQLSourceQualifier) -> Self
+ }
+ 
++class SQLSourceQualifier { }
+ 
+ protocol SQLSelectable {
++    func numberOfColumns(_ db: Database) throws -> Int
++    func qualified(by qualifier: SQLSourceQualifier) -> Self
+ }
+ 
+ extension TypedRequest {
++    func adapted(_ adapter: RowAdapter) -> AdaptedTypedRequest<Self>
+ }
+```
 
 ## 1.1
 
