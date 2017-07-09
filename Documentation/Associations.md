@@ -324,9 +324,12 @@ migrator.registerMigration("BooksAndAuthors") { db in
     }
     try db.create(table: "demographicProfiles") { t in
         t.column("countryCode", .text)
+            .notNull()
             .references("countries", onDelete: .cascade)
         t.column("citizenId", .text)
+            .notNull()
             .references("citizens", onDelete: .cascade)
+        t.primaryKey(["countryCode", "citizenId"])
         t.column("issueDate", .date)
     }
 }
