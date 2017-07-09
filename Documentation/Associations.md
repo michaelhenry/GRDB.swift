@@ -86,7 +86,7 @@ class Book: Record {
 }
 ```
 
-![BelongsTo](https://cdn.rawgit.com/groue/GRDB.swift/Graph/Documentation/Images/BelongsToSchema.svg)
+![BelongsToSchema](https://cdn.rawgit.com/groue/GRDB.swift/Graph/Documentation/Images/BelongsToSchema.svg)
 
 The matching [migration](http://github.com/groue/GRDB.swift#migrations) would look like:
 
@@ -127,7 +127,7 @@ class Book: Record {
 }
 ```
 
-![BelongsTo](https://cdn.rawgit.com/groue/GRDB.swift/Graph/Documentation/Images/BelongsToSchema.svg)
+![BelongsToSchema](https://cdn.rawgit.com/groue/GRDB.swift/Graph/Documentation/Images/BelongsToSchema.svg)
 
 The matching [migration](http://github.com/groue/GRDB.swift#migrations) would look like:
 
@@ -147,3 +147,39 @@ migrator.registerMigration("BooksAndAuthors") { db in
 }
 ```
 
+
+### HasMany
+
+The *HasMany* association indicates a one-to-many connection between two record types, such as each instance of the declaring record "has many" instances of the other record. You'll often find this association on the other side of a *BelongsTo* or *BelongsToOptional* association.
+
+For example, if your application includes authors and books, and each author is assigned zero or more books, you'd declare the association this way:
+
+```swift
+class Author: Record {
+    static let books = hasMany(Book.self)
+}
+
+class Book: Record {
+    ...
+}
+```
+
+![HasManySchema](https://cdn.rawgit.com/groue/GRDB.swift/Graph/Documentation/Images/HasManySchema.svg)
+
+The matching [migration](http://github.com/groue/GRDB.swift#migrations) would look like:
+
+```swift
+migrator.registerMigration("BooksAndAuthors") { db in
+    try db.create(table: "authors") { t in
+        t.column("id", .integer).primaryKey()
+        t.column("name", .text)
+    }
+    try db.create(table: "books") { t in
+        t.column("id", .integer).primaryKey()
+        t.column("authorId", .integer)
+            .indexed()
+            .references("authors", onDelete: .cascade)
+        t.column("title", .text)
+    }
+}
+```
