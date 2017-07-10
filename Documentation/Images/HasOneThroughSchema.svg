@@ -166,8 +166,8 @@
                             <rect id="Rectangle" fill-opacity="0.12" fill="#000000" fill-rule="evenodd" x="0" y="0" width="200" height="1"></rect>
                         </g>
                     </g>
-                    <text id="libraryAddresses" mask="url(#mask-9)" font-family="-apple-system,sans-serif" font-size="14" font-weight="500" fill="#000000">
-                        <tspan x="41.9868164" y="21">libraryAddresses</tspan>
+                    <text id="addresses" mask="url(#mask-9)" font-family="-apple-system,sans-serif" font-size="14" font-weight="500" fill="#000000">
+                        <tspan x="64.4702148" y="21">addresses</tspan>
                     </text>
                 </g>
             </g>
