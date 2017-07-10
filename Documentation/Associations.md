@@ -50,7 +50,7 @@ After associations have been declared, loading books is much easier:
 // All books written by an author:
 let author = ...
 let books = try dbQueue.inDatabase { db in
-    return try author.fetchAll(Author.books)
+    return try author.fetchAll(db, Author.books)
 }
 
 // All authors with their books:
