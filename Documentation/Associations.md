@@ -12,10 +12,23 @@ class Author: Record { ... }
 class Book: Record { ... }
 ```
 
-Without associations, loading all authors with all their books would look like:
+Without associations, loading all books of a given author would look like:
 
 ```swift
-let allAuthorsWithTheirBooks = try dbQueue.inDatabase { db in
+// All books written by an author:
+let author = ...
+let books = try dbQueue.inDatabase { db in
+    return try Book
+        .filter(Book.Columns.authorId == author.id)
+        .fetchAll(db)
+}
+```
+
+A more complex operation like loading all authors with all their books would look like:
+
+```swift
+// All authors with their books:
+let allAuthorsWithTheirBooks: [(Author, [Book])] = try dbQueue.inDatabase { db in
     let authors = try Author.fetchAll(db)
     return try authors.map { author in
         let books = try Book
@@ -33,17 +46,19 @@ class Author: Record {
     static let books = hasMany(Book.self)
     ...
 }
-
-class Book: Record {
-    static let author = belongsTo(Author.self)
-    ...
-}
 ```
 
-After associations have been declared, loading all authors with their books is easier:
+After associations have been declared, loading books is much easier:
 
 ```swift
-let allAuthorsWithTheirBooks = try dbQueue.inDatabase { db in
+// All books written by an author:
+let author = ...
+let books = try dbQueue.inDatabase { db in
+    return try author.fetchAll(Author.books)
+}
+
+// All authors with their books:
+let allAuthorsWithTheirBooks: [(Author, [Book])] = try dbQueue.inDatabase { db in
     return Author.including(Author.books).fetchAll(db)
 }
 ```
