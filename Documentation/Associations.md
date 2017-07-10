@@ -44,7 +44,7 @@ class Author: Record {
 }
 ```
 
-After associations have been declared, loading books is much easier:
+After the `Author.books` association has been declared, loading books is much easier:
 
 ```swift
 // All books written by an author:
