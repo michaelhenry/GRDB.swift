@@ -100,7 +100,7 @@ class Author: Record {
 
 A book **belongs to** its author:
 
-![BelongsToSchema](https://cdn.rawgit.com/groue/GRDB.swift/Graph/Documentation/Images/BelongsToSchema.svg)
+![BelongsToDatabase](https://cdn.rawgit.com/groue/GRDB.swift/Graph/Documentation/Images/BelongsToDatabase.svg)
 
 ¹ `authorId` is a *foreign key* to the `authors` table. When it is *not null* the presence of a book's author is enforced.
 
@@ -146,7 +146,7 @@ class DemographicProfile: Record {
 
 A country **has one** demographic profile:
 
-![HasOneSchema](https://cdn.rawgit.com/groue/GRDB.swift/Graph/Documentation/Images/HasOneSchema.svg)
+![HasOneDatabase](https://cdn.rawgit.com/groue/GRDB.swift/Graph/Documentation/Images/HasOneDatabase.svg)
 
 ¹ `countryCode` is a *foreign key* to the `countries` table. It is *uniquely indexed* to guarantee the unicity of a country's profile.
 
@@ -188,7 +188,7 @@ class Book: Record {
 
 An author **has many** books:
 
-![HasManySchema](https://cdn.rawgit.com/groue/GRDB.swift/Graph/Documentation/Images/HasManySchema.svg)
+![HasManyDatabase](https://cdn.rawgit.com/groue/GRDB.swift/Graph/Documentation/Images/HasManyDatabase.svg)
 
 ¹ `authorId` is a *foreign key* to the `authors` table. It is *indexed* to ease the selection of books belonging to a specific author.
 
@@ -236,7 +236,7 @@ class Citizen : Record {
 
 A country **has many** citizens **through** passports:
 
-![HasManyThroughSchema](https://cdn.rawgit.com/groue/GRDB.swift/Graph/Documentation/Images/HasManyThroughSchema.svg)
+![HasManyThroughDatabase](https://cdn.rawgit.com/groue/GRDB.swift/Graph/Documentation/Images/HasManyThroughDatabase.svg)
 
 ¹ `countryCode` is a *foreign key* to the `countries` table.
 
@@ -295,7 +295,7 @@ class Address : Record {
 
 A book **has one** return address **through** its library:
 
-![HasOneThroughSchema](https://cdn.rawgit.com/groue/GRDB.swift/Graph/Documentation/Images/HasOneThroughSchema.svg)
+![HasOneThroughDatabase](https://cdn.rawgit.com/groue/GRDB.swift/Graph/Documentation/Images/HasOneThroughDatabase.svg)
 
 ¹ `libraryId` is a *foreign key* to the `libraries` table.
 
