@@ -59,7 +59,7 @@ let allAuthorsWithTheirBooks: [(Author, [Book])] = try dbQueue.inDatabase { db i
 }
 ```
 
-Associations bring simpler APIs for a lot more operations. We'll introduce below the various kinds of associations, and provide the reference to their methods and options.
+Associations bring simpler APIs for a lot more operations. We'll introduce below the various kinds of associations, and then provide the reference to their methods and options.
 
 
 ## The Types of Associations
