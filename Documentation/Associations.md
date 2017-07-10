@@ -55,70 +55,29 @@ Associations bring simpler APIs for a lot more operations. We'll introduce below
 
 GRDB handles eight types of associations:
 
-- [BelongsTo](#belongsto)
-- [BelongsToOptional](#belongstooptional)
-- [HasMany](#hasmany)
-- [HasManyThrough](#hasmanythrough)
-- [HasOne](#hasone)
-- [HasOneOptional](#hasoneoptional)
-- [HasOneThrough](#hasonethrough)
-- [HasOneOptionalThrough](#hasoneoptionalthrough)
+- BelongsTo, BelongsToOptional
+- HasMany
+- HasManyThrough
+- HasOne, HasOneOptional
+- HasOneThrough, HasOneOptionalThrough
 
 An association declares a link from a record type to another, as in "one book *belongs to* its author". It instructs GRDB to use the primary and foreign keys declared in the database as support for Swift methods.
 
 Each one of the eight types of associations is appropriate for a particular database situation.
 
 
-### BelongsTo
+### BelongsTo and BelongsToOptional
 
-The *BelongsTo* association sets up a one-to-one connection from a record type to another record type, such as each instance of the declaring record "belongs to" an instance of the other record.
+The *BelongsTo* and *BelongsToOptional* associations set up a one-to-one connection from a record type to another record type, such as each instance of the declaring record "belongs to" an instance of the other record.
 
-For example, if your application includes authors and books, and each book is assigned exactly one author, you'd declare the association this way:
+For example, if your application includes authors and books, and each book is assigned its author, you'd declare the association this way:
 
 ```swift
 class Book: Record {
+    // When the database always has an author for a book:
     static let author = belongsTo(Author.self)
-    ...
-}
-
-class Author: Record {
-    ...
-}
-```
-
-A book **belongs to** its author:
-
-![BelongsToSchema](https://cdn.rawgit.com/groue/GRDB.swift/Graph/Documentation/Images/BelongsToSchema.svg)
-
-¹ `authorId` is a *foreign key* to the `authors` table. It is *not null* to enforce the presence of a book's author.
-
-The matching [migration](http://github.com/groue/GRDB.swift#migrations) would look like:
-
-```swift
-migrator.registerMigration("Books and Authors") { db in
-    try db.create(table: "authors") { t in
-        t.column("id", .integer).primaryKey()
-        t.column("name", .text)
-    }
-    try db.create(table: "books") { t in
-        t.column("id", .integer).primaryKey()
-        t.column("authorId", .integer)
-            .notNull()
-            .references("authors", onDelete: .cascade)
-        t.column("title", .text)
-    }
-}
-```
-
-
-### BelongsToOptional
-
-The *BelongsToOptional* association also sets up a one-to-one connection from a record type to another record type, such as each instance of the declaring record "belongs to" an instance of the other record. Unlike the *BelongsTo* association, the associated record is optional.
-
-For example, if your application includes authors and books, and each book is assigned zero or one author, not more, you'd declare the association this way:
-
-```swift
-class Book: Record {
+    
+    // When author can be missing:
     static let author = belongsTo(optional: Author.self)
     ...
 }
@@ -128,11 +87,9 @@ class Author: Record {
 }
 ```
 
-A book **belongs to** its **optional** author:
-
 ![BelongsToSchema](https://cdn.rawgit.com/groue/GRDB.swift/Graph/Documentation/Images/BelongsToSchema.svg)
 
-¹ `authorId` is a *foreign key* to the `authors` table. It can be null in order to allow anonymously published books.
+¹ `authorId` is a *foreign key* to the `authors` table. When it is *not null* the presence of a book's author is enforced.
 
 The matching [migration](http://github.com/groue/GRDB.swift#migrations) would look like:
 
@@ -145,6 +102,7 @@ migrator.registerMigration("Books and Authors") { db in
     try db.create(table: "books") { t in
         t.column("id", .integer).primaryKey()
         t.column("authorId", .integer)
+            .notNull() // for BelongsTo association
             .references("authors", onDelete: .cascade)
         t.column("title", .text)
     }
@@ -152,57 +110,18 @@ migrator.registerMigration("Books and Authors") { db in
 ```
 
 
-### HasOne
+### HasOne and HasOneOptional
 
-The *HasOne* association also sets up a one-to-one connection from a record type to another record type, but with different semantics, and underlying database schema. It it usually used when an entity has been denormalized into two database tables.
+The *HasOne* and *HasOneOptional* associations also set up a one-to-one connection from a record type to another record type, but with different semantics, and underlying database schema. They are usually used when an entity has been denormalized into two database tables.
 
-For example, if your application includes countries and their demographic profiles, and each country has exactly one demographic profile, you'd declare the association this way:
+For example, if your application includes countries and their demographic profiles, and each country has its demographic profile, you'd declare the association this way:
 
 ```swift
 class Country: Record {
+    // When the database always has a demographic profile for a country:
     static let profile = hasOne(DemographicProfile.self)
-    ...
-}
-
-class DemographicProfile: Record {
-    ...
-}
-```
-
-A country **has one** demographic profile:
-
-![HasOneSchema](https://cdn.rawgit.com/groue/GRDB.swift/Graph/Documentation/Images/HasOneSchema.svg)
-
-¹ `countryCode` is a *foreign key* to the `countries` table. It is *uniquely indexed* to guarantee the unicity of a country's profile.
-
-The matching [migration](http://github.com/groue/GRDB.swift#migrations) would look like:
-
-```swift
-migrator.registerMigration("Countries and DemographicProfiles") { db in
-    try db.create(table: "countries") { t in
-        t.column("code", .text).primaryKey()
-        t.column("name", .text)
-    }
-    try db.create(table: "demographicProfiles") { t in
-        t.column("id", .integer).primaryKey()
-        t.column("countryCode", .text)
-            .unique()
-            .references("countries", onDelete: .cascade)
-        t.column("population", .integer)
-        t.column("density", .double)
-    }
-}
-```
-
-
-### HasOneOptional
-
-The *HasOneOptional* association also sets up a one-to-one connection from a record type to another record type. Unlike the *HasOne* association, the associated record is optional.
-
-For example, if your application includes countries and their demographic profiles, and each country has zero or one demographic profile, you'd declare the association this way:
-
-```swift
-class Country: Record {
+    
+    // When demographic profile can be missing:
     static let profile = hasOne(optional: DemographicProfile.self)
     ...
 }
@@ -211,8 +130,6 @@ class DemographicProfile: Record {
     ...
 }
 ```
-
-A country **has one optional** demographic profile:
 
 ![HasOneSchema](https://cdn.rawgit.com/groue/GRDB.swift/Graph/Documentation/Images/HasOneSchema.svg)
 
