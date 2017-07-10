@@ -12,7 +12,7 @@ class Author: Record { ... }
 class Book: Record { ... }
 ```
 
-Without associations, loading all books of a given author would look like:
+Without associations, loading books from authors would look like:
 
 ```swift
 // All books written by an author:
@@ -22,11 +22,7 @@ let books = try dbQueue.inDatabase { db in
         .filter(Book.Columns.authorId == author.id)
         .fetchAll(db)
 }
-```
 
-A more complex operation like loading all authors with all their books would look like:
-
-```swift
 // All authors with their books:
 let allAuthorsWithTheirBooks: [(Author, [Book])] = try dbQueue.inDatabase { db in
     let authors = try Author.fetchAll(db)
