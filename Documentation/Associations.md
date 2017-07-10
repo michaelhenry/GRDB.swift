@@ -87,6 +87,8 @@ class Author: Record {
 }
 ```
 
+A book **belongs to** its author:
+
 ![BelongsToSchema](https://cdn.rawgit.com/groue/GRDB.swift/Graph/Documentation/Images/BelongsToSchema.svg)
 
 ¹ `authorId` is a *foreign key* to the `authors` table. When it is *not null* the presence of a book's author is enforced.
@@ -130,6 +132,8 @@ class DemographicProfile: Record {
     ...
 }
 ```
+
+A country **has one** demographic profile:
 
 ![HasOneSchema](https://cdn.rawgit.com/groue/GRDB.swift/Graph/Documentation/Images/HasOneSchema.svg)
 
@@ -253,3 +257,62 @@ migrator.registerMigration("Countries, Passports, and Citizens") { db in
 ```
 
 > :point_up: **Note**: the example above defines a *HasManyThrough* association by linking a *HasMany* association and a *BelongsTo* association. In general, any two associations that share the same intermediate type can be used to define a *HasManyThrough* association.
+
+
+### HasOneThrough and HasOneOptionalThrough
+
+The *HasOneThrough* and *HasOneOptionalThrough* associations set up a one-to-one connection between two record types, *through* a third record. You declare this association by linking two other one-to-one associations together.
+
+For example, consider an application that includes books, libraries, and addresses. You'd declare that each book has its return address by linking a *BelongsTo* association from books to libraries, and a *HasOne* association from libraries to addresses:
+
+```swift
+class Book : Record {
+    static let library = belongsTo(Library.self)
+    static let returnAddress = hasOne(Library.address, through: library)
+    ...
+}
+
+class Library : Record {
+    static let address = hasOne(Address.self)
+    ...
+}
+
+class Address : Record {
+    ...
+}
+```
+
+A book **has one** return address **through** its library:
+
+![HasOneThroughSchema](https://cdn.rawgit.com/groue/GRDB.swift/Graph/Documentation/Images/HasOneThroughSchema.svg)
+
+¹ `libraryId` is a *foreign key* to the `libraries` table.
+
+² `libraryId` is both the *primary key* of the `addresses` table, and a *foreign key* to the `libraries` table.
+
+The matching [migration](http://github.com/groue/GRDB.swift#migrations) would look like:
+
+```swift
+migrator.registerMigration("Books, Libraries, and Addresses") { db in
+    try db.create(table: "libraries") { t in
+        t.column("id", .integer).primaryKey()
+        t.column("name", .text)
+    }
+    try db.create(table: "books") { t in
+        t.column("id", .integer).primaryKey()
+        t.column("libraryId", .integer)
+            .notNull()
+            .references("libraries", onDelete: .cascade)
+        t.column("title", .text).primaryKey()
+    }
+    try db.create(table: "addresses") { t in
+        t.column("libraryId", .integer)
+            .primaryKey()
+            .references("libraries", onDelete: .cascade)
+        t.column("street", .text)
+        t.column("city", .text)
+    }
+}
+```
+
+> :point_up: **Note**: the example above defines a *HasOneThrough* association by linking a *BelongsTo* association and a *HasOne* association. In general, any two non-optional one-to-one associations that share the same intermediate type can be used to define a *HasOneThrough* association. When one or both of the linked associations is optional, you build a *HasOneOptionalThrough* association.
