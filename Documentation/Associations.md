@@ -16,6 +16,8 @@ GRDB Associations
     - [Choosing Between BelongsTo and HasOne](#choosing-between-belongsto-and-hasone)
     - [Self Joins](#self-joins)
 - [Associations and the Database Schema](#associations-and-the-database-schema)
+- [Detailed Association Reference](#detailed-association-reference)
+    - [BelongsTo Reference](#belongsto-reference)
 
 
 ## Introduction
@@ -79,7 +81,8 @@ let allAuthorsWithTheirBooks: [(Author, [Book])] = try dbQueue.inDatabase { db i
 Associations bring simpler APIs for a lot more operations. We'll introduce below the various kinds of associations, and then provide the reference to their methods and options.
 
 
-## The Types of Associations
+The Types of Associations
+=========================
 
 GRDB handles five types of associations:
 
@@ -94,7 +97,7 @@ An association declares a link from a record type to another, as in "one book *b
 Each one of the eight types of associations is appropriate for a particular database situation.
 
 
-### BelongsTo
+## BelongsTo
 
 The *BelongsTo* association sets up a one-to-one connection from a record type to another record type, such as each instance of the declaring record "belongs to" an instance of the other record.
 
@@ -139,7 +142,7 @@ migrator.registerMigration("Books and Authors") { db in
 ```
 
 
-### HasOne
+## HasOne
 
 The *HasOne* association also sets up a one-to-one connection from a record type to another record type, but with different semantics, and underlying database schema. It is usually used when an entity has been denormalized into two database tables.
 
@@ -186,7 +189,7 @@ migrator.registerMigration("Countries and DemographicProfiles") { db in
 ```
 
 
-### HasMany
+## HasMany
 
 The *HasMany* association indicates a one-to-many connection between two record types, such as each instance of the declaring record "has many" instances of the other record. You'll often find this association on the other side of a *BelongsTo* association.
 
@@ -227,7 +230,7 @@ migrator.registerMigration("Books and Authors") { db in
 ```
 
 
-### HasManyThrough
+## HasManyThrough
 
 The *HasManyThrough* association sets up a one-to-many connection between two record types, *through* a third record. You declare this association by linking two other associations together.
 
@@ -286,7 +289,7 @@ migrator.registerMigration("Countries, Passports, and Citizens") { db in
 > :point_up: **Note**: the example above defines a *HasManyThrough* association by linking a *HasMany* association and a *BelongsTo* association. In general, any two associations that share the same intermediate type can be used to define a *HasManyThrough* association.
 
 
-### HasOneThrough
+## HasOneThrough
 
 The *HasOneThrough* association sets up a one-to-one connection between two record types, *through* a third record. You declare this association by linking two other one-to-one associations together.
 
@@ -345,7 +348,7 @@ migrator.registerMigration("Books, Libraries, and Addresses") { db in
 > :point_up: **Note**: the example above defines a *HasOneThrough* association by linking a *BelongsTo* association and a *HasOne* association. In general, any two non-optional one-to-one associations that share the same intermediate type can be used to define a *HasOneThrough* association. When one or both of the linked associations is optional, you build a *HasOneOptionalThrough* association.
 
 
-### Choosing Between BelongsTo and HasOne
+## Choosing Between BelongsTo and HasOne
 
 When you want to set up a one-to-one relationship between two record types, you'll need to add a *BelongsTo* association to one, and a *HasOne* association to the other. How do you know which is which?
 
@@ -368,7 +371,7 @@ class DemographicProfile: Record {
 ```
 
 
-### Self Joins
+## Self Joins
 
 In designing a data model, you will sometimes find a model that should have a relation to itself. For example, you may want to store all employees in a single database model, but be able to trace relationships such as between manager and subordinates. This situation can be modeled with self-joining associations:
 
@@ -395,7 +398,8 @@ migrator.registerMigration("Employees") { db in
 ```
 
 
-## Associations and the Database Schema
+Associations and the Database Schema
+====================================
 
 In all examples above, we have defined associations without giving the name of any database column:
 
@@ -458,4 +462,10 @@ In this case, you must help GRDB finding the supporting columns:
 
 - [ ] **TODO**: Let user use the `Column` type
 - [ ] **TODO**: Allow or forbid for good compound primary keys. If forbidden, there is no point providing arrays to the complete foreign key definition.
+
+
+Detailed Association Reference
+==============================
+
+## BelongsTo Reference
 
