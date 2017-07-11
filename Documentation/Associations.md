@@ -326,3 +326,27 @@ migrator.registerMigration("Books, Libraries, and Addresses") { db in
 ```
 
 > :point_up: **Note**: the example above defines a *HasOneThrough* association by linking a *BelongsTo* association and a *HasOne* association. In general, any two non-optional one-to-one associations that share the same intermediate type can be used to define a *HasOneThrough* association. When one or both of the linked associations is optional, you build a *HasOneOptionalThrough* association.
+
+
+### Choosing Between BelongsTo and HasOne
+
+When you want to set up a one-to-one relationship between two record types, you'll need to add a *BelongsTo* association to one, and a *HasOne* association to the other. How do you know which is which?
+
+The distinction is in where you place the database foreign key. The record that points to the other one has the *BelongsTo* association. The other record has the *HasOne* association:
+
+A demographic profile **belongs to** a country, and a country **has one** demographic profile:
+
+![HasOneDatabase](https://cdn.rawgit.com/groue/GRDB.swift/Graph/Documentation/Images/HasOneDatabase.svg)
+
+```swift
+class Country: Record {
+    static let profile = hasOne(DemographicProfile.self)
+    ...
+}
+
+class DemographicProfile: Record {
+    static let country = belongsTo(DemographicProfile.self)
+    ...
+}
+```
+
