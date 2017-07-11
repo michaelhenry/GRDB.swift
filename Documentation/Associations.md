@@ -3,6 +3,23 @@ GRDB Associations
 
 > [**:fire: EXPERIMENTAL**](http://github.com/groue/GRDB.swift#what-are-experimental-features): GRDB associations are young, and not stabilized yet. To help them becoming stable, [your feedback](https://github.com/groue/GRDB.swift/issues) is greatly appreciated.
 
+
+## Chapters
+
+- [Introduction](#introduction)
+- [The Types of Associations](#the-types-of-associations)
+    - [BelongsTo](#belongsto)
+    - [HasMany](#hasmany)
+    - [HasManyThrough](#hasmanythrough)
+    - [HasOne](#hasone)
+    - [HasOneThrough](#hasonethrough)
+    - [Choosing Between BelongsTo and HasOne](#choosing-between-belongsto-and-hasone)
+    - [Self Joins](#self-joins)
+- [Associations and the Database Schema](#associations-and-the-database-schema)
+
+
+## Introduction
+
 **An association is a connection between two [Record](http://github.com/groue/GRDB.swift#records) types.** It helps your code perform common operations in an easier way.
 
 For example, consider an application that defines two record types for authors and books. Each author can have many books:
@@ -378,7 +395,7 @@ migrator.registerMigration("Employees") { db in
 ```
 
 
-### Associations and the Database Schema
+## Associations and the Database Schema
 
 In all examples above, we have defined associations without giving the name of any database column:
 
