@@ -7,15 +7,25 @@ var configuration = Configuration()
 configuration.trace = { print($0) }
 let dbQueue = DatabaseQueue(configuration: configuration)
 
-try! dbQueue.inDatabase { db in
-    try db.create(table: "persons") { t in
+
+var migrator = DatabaseMigrator()
+migrator.registerMigration("Employees") { db in
+    try db.create(table: "employees") { t in
         t.column("id", .integer).primaryKey()
+        t.column("managerId", .integer).references("employees")
         t.column("name", .text)
     }
+}
+try! migrator.migrate(dbQueue)
+
+class Employee : Record {
+    static let manager = belongsTo(optional:Employee.self)
+    static let subordinates = hasMany(Employee.self)
     
-    try db.execute("INSERT INTO persons (name) VALUES (?)", arguments: ["Arthur"])
-    try db.execute("INSERT INTO persons (name) VALUES (?)", arguments: ["Barbara"])
-    
-    let names = try String.fetchAll(db, "SELECT name FROM persons")
-    print(names)
+    override static var databaseTableName: String { return "employees" }
+}
+
+try! dbQueue.inDatabase { db in
+    try! Employee().fetchAll(db, Employee.subordinates)
+    try! Employee().fetchOne(db, Employee.manager)
 }

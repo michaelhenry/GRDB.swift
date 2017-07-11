@@ -350,3 +350,95 @@ class DemographicProfile: Record {
 }
 ```
 
+
+### Self Joins
+
+In designing a data model, you will sometimes find a model that should have a relation to itself. For example, you may want to store all employees in a single database model, but be able to trace relationships such as between manager and subordinates. This situation can be modeled with self-joining associations:
+
+```swift
+class Employee: Record {
+    static let manager = belongsTo(optional:Employee.self)
+    static let subordinates = hasMany(Employee.self)
+    ...
+}
+```
+
+![SelfJoinDatabase](https://cdn.rawgit.com/groue/GRDB.swift/Graph/Documentation/Images/SelfJoinDatabase.svg)
+
+The matching [migration](http://github.com/groue/GRDB.swift#migrations) would look like:
+
+```swift
+migrator.registerMigration("Employees") { db in
+    try db.create(table: "employees") { t in
+        t.column("id", .integer).primaryKey()
+        t.column("managerId", .integer).references("employees")
+        t.column("name", .text)
+    }
+}
+```
+
+
+### Associations and the Database Schema
+
+In all examples above, we have defined associations without giving the name of any database column.
+
+```swift
+class Author: Record {
+    static let books = hasMany(Book.self)
+}
+
+class Book: Record {
+    static let author = belongsTo(Author.self)
+}
+```
+
+We can avoid naming columns when the database schema defines the primary and foreign keys that support the association, as in the migration below:
+
+```swift
+migrator.registerMigration("Books and Authors") { db in
+    try db.create(table: "authors") { t in
+        t.column("id", .integer).primaryKey() // primary key
+        t.column("name", .text)
+    }
+    try db.create(table: "books") { t in
+        t.column("id", .integer).primaryKey()
+        t.column("authorId", .integer)        // foreign key
+            .notNull()
+            .indexed()
+            .references("authors", onDelete: .cascade)
+        t.column("title", .text)
+    }
+}
+```
+
+Sometimes the database schema is ambiguous. This happens when a table defines several foreign keys to another table. This also happens when the schema is loosely defined, and does not define any foreign key at all.
+
+In this case, you must help GRDB finding the supporting columns:
+
+- Either by providing the column that points to the other table. This works if the target table has a primary key:
+
+    ```swift
+    class Author: Record {
+        static let books = hasMany(Book.self, from: "authorId")
+    }
+
+    class Book: Record {
+        static let author = belongsTo(Author.self, from: "authorId")
+    }
+    ```
+
+- Or by providing the full definition of the missing foreign key. This will always work, even if the target table has no primary key:
+
+    ```swift
+    class Author: Record {
+        static let books = hasMany(Book.self, from: ["authorId"], to: "[id"])
+    }
+
+    class Book: Record {
+        static let author = belongsTo(Author.self, from: ["authorId"], to: ["id"])
+    }
+    ```
+
+- [ ] **TODO**: Let user use the `Column` type
+- [ ] **TODO**: Allow or forbid for good compound primary keys. If forbidden, there is no point providing arrays to the complete foreign key definition.
+
