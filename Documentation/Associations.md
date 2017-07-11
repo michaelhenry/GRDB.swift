@@ -509,12 +509,11 @@ class Author: Record {
 
 ### Using the Association
 
-The *BelongsTo* association adds four methods to the declaring Record:
+The *BelongsTo* association adds three methods to the declaring Record:
 
 - `Record.including(_:)`
 - `Record.join(_:)`
 - `record.fetchOne(_:_:)`
-- `record.request(_:)`
 
 
 #### `Record.including(_:)`
