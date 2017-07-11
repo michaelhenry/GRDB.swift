@@ -357,7 +357,7 @@ In designing a data model, you will sometimes find a model that should have a re
 
 ```swift
 class Employee: Record {
-    static let manager = belongsTo(optional:Employee.self)
+    static let manager = belongsTo(optional: Employee.self)
     static let subordinates = hasMany(Employee.self)
     ...
 }
@@ -380,7 +380,7 @@ migrator.registerMigration("Employees") { db in
 
 ### Associations and the Database Schema
 
-In all examples above, we have defined associations without giving the name of any database column.
+In all examples above, we have defined associations without giving the name of any database column:
 
 ```swift
 class Author: Record {
@@ -392,7 +392,7 @@ class Book: Record {
 }
 ```
 
-We can avoid naming columns when the database schema defines the primary and foreign keys that support the association, as in the migration below:
+This concise definition of association is possible when the database schema defines the primary and foreign keys that support the association. For example,  in the migration below, the `authors` table has a primary key, and the `books` table has a foreign key:
 
 ```swift
 migrator.registerMigration("Books and Authors") { db in
