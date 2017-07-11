@@ -363,7 +363,7 @@ class Employee: Record {
 }
 ```
 
-![SelfJoinDatabase](https://cdn.rawgit.com/groue/GRDB.swift/Graph/Documentation/Images/SelfJoinDatabase.svg)
+![SelfJoinSchema](https://cdn.rawgit.com/groue/GRDB.swift/Graph/Documentation/Images/SelfJoinSchema.svg)
 
 The matching [migration](http://github.com/groue/GRDB.swift#migrations) would look like:
 
