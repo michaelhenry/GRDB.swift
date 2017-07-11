@@ -467,5 +467,117 @@ In this case, you must help GRDB finding the supporting columns:
 Detailed Association Reference
 ==============================
 
+The following sections give the details of each type of association, including the methods that they define, and the options that you can use when declaring an association.
+
+
 ## BelongsTo Reference
 
+The *BelongsTo* association sets up a one-to-one connection from a record type to another record type. In database terms, this association says that the record type that declares the association contains the foreign key. If the other record contains the foreign key, then you should use *HasOne* instead.
+
+
+### Declaring the Association
+
+To declare a *BelongsTo* association, you use one of those static methods:
+
+- `belongsTo(_:)`
+- `belongsTo(_:from:)`
+- `belongsTo(_:from:to:)`
+- `belongsTo(optional:)`
+- `belongsTo(optional:from:)`
+- `belongsTo(optional:from:to:)`
+
+The first argument is the type of the targetted record.
+
+The `optional:` variant declares that the database may not always contain a matching record. You can think of it as the Swift `Optional` type. Just as the Swift Optional tells a value may be missing, so does `belongsTo(optional:)`.
+
+Use the `from:` and `from:to:` variants when the database schema does not allow GRDB to infer the foreign key that supports the association (see [Associations and the Database Schema](#associations-and-the-database-schema)).
+
+For example:
+
+```swift
+class Book: Record {
+    static let author = belongsTo(Author.self)
+    ...
+}
+
+class Author: Record {
+    ...
+}
+```
+
+
+### Using the Association
+
+The *BelongsTo* association adds four methods to the declaring Record:
+
+- `Record.including(_:)`
+- `Record.join(_:)`
+- `record.request(_:)`
+- `record.fetchOne(_:_:)`
+
+
+#### `Record.including(_:)`
+
+The `including(_:)` method returns a request that loads all associated couples as Swift tuples:
+
+```swift
+class Book: Record {
+    static let author = belongsTo(Author.self)
+    ...
+}
+
+class Author: Record {
+    ...
+}
+
+try dbQueue.inDatabase { db in
+    let request = Book.including(Book.author)
+    let results = try request.fetchAll(db) // [(Book, Author)]
+}
+```
+
+When the association is declared with the `optional:` variant, the right object of the tuple is optional:
+
+```swift
+class Book: Record {
+    static let author = belongsTo(optional: Author.self) // optional Author
+    ...
+}
+
+class Author: Record {
+    ...
+}
+
+try dbQueue.inDatabase { db in
+    let request = Book.including(Book.author)
+    let results = try request.fetchAll(db) // [(Book, Author?)]
+}
+```
+
+The request returned by `including(_:)` can be further refined just like other [Query Interface Requests](https://github.com/groue/GRDB.swift#requests):
+
+```swift
+try dbQueue.inDatabase { db in
+    let request = Book
+        .including(Book.author)
+        .order(Book.Columns.price)
+        .limit(20)
+    let results = try request.fetchAll(db) // [(Book, Author?)]
+}
+```
+
+#### `Record.join(_:)`
+
+TODO
+
+#### `record.request(_:)`
+
+TODO
+
+#### `record.fetchOne(_:_:)`
+
+TODO
+
+### Refining the Association
+
+TODO
