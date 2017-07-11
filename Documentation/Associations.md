@@ -462,6 +462,7 @@ In this case, you must help GRDB finding the supporting columns:
 
 - [ ] **TODO**: Let user use the `Column` type
 - [ ] **TODO**: Allow or forbid for good compound primary keys. If forbidden, there is no point providing arrays to the complete foreign key definition.
+- [ ] **TODO**: Add a tip so that users can control the generated SQL
 
 
 Detailed Association Reference
