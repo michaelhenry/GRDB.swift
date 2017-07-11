@@ -513,13 +513,13 @@ The *BelongsTo* association adds four methods to the declaring Record:
 
 - `Record.including(_:)`
 - `Record.join(_:)`
-- `record.request(_:)`
 - `record.fetchOne(_:_:)`
+- `record.request(_:)`
 
 
 #### `Record.including(_:)`
 
-The `including(_:)` method returns a request that loads all associated couples as Swift tuples:
+The `including(_:)` static method returns a request that loads all associated couples as Swift tuples:
 
 ```swift
 class Book: Record {
@@ -527,14 +527,7 @@ class Book: Record {
     ...
 }
 
-class Author: Record {
-    ...
-}
-
 try dbQueue.inDatabase { db in
-    // SELECT books.*, authors.*
-    // FROM books
-    // JOIN authors ON authors.id = books.authorId
     let request = Book.including(Book.author)
     let results = try request.fetchAll(db) // [(Book, Author)]
 }
@@ -548,14 +541,7 @@ class Book: Record {
     ...
 }
 
-class Author: Record {
-    ...
-}
-
 try dbQueue.inDatabase { db in
-    // SELECT books.*, authors.*
-    // FROM books
-    // LEFT JOIN authors ON authors.id = books.authorId
     let request = Book.including(Book.author)
     let results = try request.fetchAll(db) // [(Book, Author?)]
 }
@@ -565,31 +551,35 @@ The request returned by `including(_:)` can be further refined just like other [
 
 ```swift
 try dbQueue.inDatabase { db in
-    // SELECT books.*, authors.*
-    // FROM books
-    // LEFT JOIN authors ON authors.id = books.authorId
-    // ORDER BY books.price
-    // LIMIT 20
     let request = Book
         .including(Book.author)
+        .filter(Book.Columns.genre == "Thriller")
         .order(Book.Columns.price)
         .limit(20)
     let results = try request.fetchAll(db) // [(Book, Author?)]
 }
 ```
 
+
 #### `Record.join(_:)`
 
-TODO
+- [ ] **TODO**
 
-#### `record.request(_:)`
-
-TODO
 
 #### `record.fetchOne(_:_:)`
 
-TODO
+The `fetchOne(_:)` instance method fetches the associated record:
+
+```swift
+try dbQueue.inDatabase { db in
+    let book: Book = ...
+    let author = try book.fetchOne(db, Book.author) // Author?
+}
+```
+
+The fetched record is an optional even if the association has been declared with the `optional:` variant.
+
 
 ### Refining the Association
 
-TODO
+- [ ] **TODO**
