@@ -531,17 +531,12 @@ class Author: Record {
 }
 
 try dbQueue.inDatabase { db in
+    // SELECT books.*, authors.*
+    // FROM books
+    // JOIN authors ON authors.id = books.authorId
     let request = Book.including(Book.author)
     let results = try request.fetchAll(db) // [(Book, Author)]
 }
-```
-
-It runs the following SQL request:
-
-```sql
-SELECT books.*, authors.*
-FROM books
-JOIN authors ON authors.id = books.authorId
 ```
 
 When the association is declared with the `optional:` variant, the right object of the tuple is optional:
@@ -557,23 +552,23 @@ class Author: Record {
 }
 
 try dbQueue.inDatabase { db in
+    // SELECT books.*, authors.*
+    // FROM books
+    // LEFT JOIN authors ON authors.id = books.authorId
     let request = Book.including(Book.author)
     let results = try request.fetchAll(db) // [(Book, Author?)]
 }
-```
-
-The `optional:` variant runs the following SQL request:
-
-```sql
-SELECT books.*, authors.*
-FROM books
-LEFT JOIN authors ON authors.id = books.authorId
 ```
 
 The request returned by `including(_:)` can be further refined just like other [Query Interface Requests](https://github.com/groue/GRDB.swift#requests):
 
 ```swift
 try dbQueue.inDatabase { db in
+    // SELECT books.*, authors.*
+    // FROM books
+    // LEFT JOIN authors ON authors.id = books.authorId
+    // ORDER BY books.price
+    // LIMIT 20
     let request = Book
         .including(Book.author)
         .order(Book.Columns.price)
