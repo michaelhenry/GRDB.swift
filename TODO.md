@@ -43,6 +43,8 @@ Associations
 - [ ] `belongs(to:)`, `belongs(toOptional:)`, `has(one:)`, `has(oneOptional:)`, `has(many:)`
 - [ ] Remove the tuple names in results fetched from JoinedPair: `(left: X, right: Y)` -> `(X, Y)`
 - [ ] Consider removing the `record.request(_:)` method for to-one associations. `fetchOne` looks enough.
+- [ ] Turning a non-optional to an optional association. Use case: derive `belongsTo(optional: Author.self).filter(Column("isDead"))` from `belongsTo(Author.self)`
+- [ ] Turning an optional to a non-optional association. For example: `Book.including(mandatory: Book.belongsTo(optional: Author.self).filter(Column("gender") == "female")).fetchAll(db) => [(Book, Author)]`
 
 Not sure
 

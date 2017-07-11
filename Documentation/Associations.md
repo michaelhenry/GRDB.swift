@@ -489,7 +489,7 @@ To declare a *BelongsTo* association, you use one of those static methods:
 
 The first argument is the type of the targetted record.
 
-The `optional:` variant declares that the database may not always contain a matching record. You can think of it as the Swift `Optional` type. Just as the Swift Optional tells a value may be missing, so does `belongsTo(optional:)`.
+The `optional:` variant declares that the database may not always contain a matching record. You can think of it as the Swift `Optional` type: just as a Swift optional tells that a value may be missing, `belongsTo(optional:)` tells that an associated record may be missing in the database.
 
 Use the `from:` and `from:to:` variants when the database schema does not allow GRDB to infer the foreign key that supports the association (see [Associations and the Database Schema](#associations-and-the-database-schema)).
 
@@ -518,7 +518,7 @@ The *BelongsTo* association adds three methods to the declaring Record:
 
 #### `Record.including(_:)`
 
-The `including(_:)` static method returns a request that loads all associated couples as Swift tuples:
+The `including(_:)` static method returns a request that loads all associated pairs as Swift tuples:
 
 ```swift
 class Book: Record {
@@ -536,7 +536,7 @@ When the association is declared with the `optional:` variant, the right object 
 
 ```swift
 class Book: Record {
-    static let author = belongsTo(optional: Author.self) // optional Author
+    static let author = belongsTo(optional: Author.self)
     ...
 }
 
@@ -559,6 +559,17 @@ try dbQueue.inDatabase { db in
 }
 ```
 
+You can load all associated pairs as an Array with `fetchAll`, as a Cursor with `fetchCursor`, or you can load the first one with `fetchOne`. See [Fetching Methods](https://github.com/groue/GRDB.swift#fetching-methods) for more information:
+
+```swift
+try dbQueue.inDatabase { db in
+    let request = Book.including(Book.author)
+    try request.fetchAll(db)    // [(Book, Author?)]
+    try request.fetchCursor(db) // DatabaseCursor<(Book, Author?)>
+    try request.fetchOne(db)    // (Book, Author?)?
+}
+```
+
 
 #### `Record.join(_:)`
 
@@ -567,7 +578,7 @@ try dbQueue.inDatabase { db in
 
 #### `record.fetchOne(_:_:)`
 
-The `fetchOne(_:)` instance method fetches the associated record:
+The `fetchOne(_:_:)` instance method fetches the associated record:
 
 ```swift
 try dbQueue.inDatabase { db in
@@ -576,7 +587,7 @@ try dbQueue.inDatabase { db in
 }
 ```
 
-The fetched record is an optional even if the association has been declared with the `optional:` variant.
+The fetched record is an optional even if the association has not been declared with the `optional:` variant.
 
 
 ### Refining the Association
