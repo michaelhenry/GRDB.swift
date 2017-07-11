@@ -428,7 +428,7 @@ migrator.registerMigration("Books and Authors") { db in
 }
 ```
 
-Sometimes the database schema is ambiguous. This happens when a table defines several foreign keys to another table. This also happens when the schema is loosely defined, and does not define any foreign key at all.
+Sometimes the database schema is ambiguous. This happens when a table defines several foreign keys to another table. This also happens when the schema is loose, and does not define any foreign or primary key at all.
 
 In this case, you must help GRDB finding the supporting columns:
 
