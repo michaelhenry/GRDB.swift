@@ -64,22 +64,22 @@ Associations bring simpler APIs for a lot more operations. We'll introduce below
 
 ## The Types of Associations
 
-GRDB handles eight types of associations:
+GRDB handles five types of associations:
 
-- BelongsTo, BelongsToOptional
+- BelongsTo
 - HasMany
 - HasManyThrough
-- HasOne, HasOneOptional
-- HasOneThrough, HasOneOptionalThrough
+- HasOne
+- HasOneThrough
 
 An association declares a link from a record type to another, as in "one book *belongs to* its author". It instructs GRDB to use the primary and foreign keys declared in the database as support for Swift methods.
 
 Each one of the eight types of associations is appropriate for a particular database situation.
 
 
-### BelongsTo and BelongsToOptional
+### BelongsTo
 
-The *BelongsTo* and *BelongsToOptional* associations set up a one-to-one connection from a record type to another record type, such as each instance of the declaring record "belongs to" an instance of the other record.
+The *BelongsTo* association sets up a one-to-one connection from a record type to another record type, such as each instance of the declaring record "belongs to" an instance of the other record.
 
 For example, if your application includes authors and books, and each book is assigned its author, you'd declare the association this way:
 
@@ -102,7 +102,7 @@ A book **belongs to** its author:
 
 ![BelongsToDatabase](https://cdn.rawgit.com/groue/GRDB.swift/Graph/Documentation/Images/BelongsToDatabase.svg)
 
-¹ `authorId` is a *foreign key* to the `authors` table. When it is *not null* the presence of a book's author is enforced.
+¹ `authorId` is a *foreign key* to the `authors` table.
 
 The matching [migration](http://github.com/groue/GRDB.swift#migrations) would look like:
 
@@ -115,7 +115,6 @@ migrator.registerMigration("Books and Authors") { db in
     try db.create(table: "books") { t in
         t.column("id", .integer).primaryKey()
         t.column("authorId", .integer)
-            .notNull() // for BelongsTo association
             .references("authors", onDelete: .cascade)
         t.column("title", .text)
     }
@@ -123,9 +122,9 @@ migrator.registerMigration("Books and Authors") { db in
 ```
 
 
-### HasOne and HasOneOptional
+### HasOne
 
-The *HasOne* and *HasOneOptional* associations also set up a one-to-one connection from a record type to another record type, but with different semantics, and underlying database schema. They are usually used when an entity has been denormalized into two database tables.
+The *HasOne* association also sets up a one-to-one connection from a record type to another record type, but with different semantics, and underlying database schema. It is usually used when an entity has been denormalized into two database tables.
 
 For example, if your application includes countries and their demographic profiles, and each country has its demographic profile, you'd declare the association this way:
 
@@ -172,7 +171,7 @@ migrator.registerMigration("Countries and DemographicProfiles") { db in
 
 ### HasMany
 
-The *HasMany* association indicates a one-to-many connection between two record types, such as each instance of the declaring record "has many" instances of the other record. You'll often find this association on the other side of a *BelongsTo* or *BelongsToOptional* association.
+The *HasMany* association indicates a one-to-many connection between two record types, such as each instance of the declaring record "has many" instances of the other record. You'll often find this association on the other side of a *BelongsTo* association.
 
 For example, if your application includes authors and books, and each author is assigned zero or more books, you'd declare the association this way:
 
@@ -270,9 +269,9 @@ migrator.registerMigration("Countries, Passports, and Citizens") { db in
 > :point_up: **Note**: the example above defines a *HasManyThrough* association by linking a *HasMany* association and a *BelongsTo* association. In general, any two associations that share the same intermediate type can be used to define a *HasManyThrough* association.
 
 
-### HasOneThrough and HasOneOptionalThrough
+### HasOneThrough
 
-The *HasOneThrough* and *HasOneOptionalThrough* associations set up a one-to-one connection between two record types, *through* a third record. You declare this association by linking two other one-to-one associations together.
+The *HasOneThrough* association sets up a one-to-one connection between two record types, *through* a third record. You declare this association by linking two other one-to-one associations together.
 
 For example, consider an application that includes books, libraries, and addresses. You'd declare that each book has its return address by linking a *BelongsTo* association from books to libraries, and a *HasOne* association from libraries to addresses:
 
