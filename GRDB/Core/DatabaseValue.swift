@@ -77,6 +77,19 @@ public struct DatabaseValue {
         self = convertible.databaseValue
     }
     
+    #if GRDBCUSTOMSQLITE
+    /// Creates a DatabaseValue suitable for the `sqlite3_bind_pointer` and
+    /// `sqlite3_result_pointer` SQLite functions.
+    ///
+    /// See:
+    ///
+    /// - http://sqlite.org/draft/c3ref/bind_blob.html
+    /// - http://sqlite.org/draft/c3ref/result_blob.html
+    public init<T>(mutating pointer: UnsafeMutablePointer<T>, type: StaticString) {
+        storage = .null
+        pointerValue = (pointer: UnsafeMutableRawPointer(pointer), type: type)
+    }
+    #endif
     
     // MARK: - Extracting Value
     
@@ -93,11 +106,20 @@ public struct DatabaseValue {
     
     // MARK: - Not Public
     
+    #if GRDBCUSTOMSQLITE
+    // pointer values have been introduced in SQLite 3.20.0
+    private let pointerValue: (pointer: UnsafeMutableRawPointer, type: StaticString)?
+    #endif
+    
     init(storage: Storage) {
         // This initializer is not public because Storage is not a safe type:
         // one can create a Storage of zero-length Data, which is invalid
         // because SQLite can't store zero-length blobs.
         self.storage = storage
+        
+        #if GRDBCUSTOMSQLITE
+            self.pointerValue = nil
+        #endif
     }
     
     // SQLite function argument
@@ -119,6 +141,10 @@ public struct DatabaseValue {
             // Assume a GRDB bug: there is no point throwing any error.
             fatalError("Unexpected SQLite value type: \(type)")
         }
+        
+        #if GRDBCUSTOMSQLITE
+            pointerValue = nil
+        #endif
     }
 
     /// Returns a DatabaseValue initialized from a raw SQLite statement pointer.
@@ -140,9 +166,75 @@ public struct DatabaseValue {
             // Assume a GRDB bug: there is no point throwing any error.
             fatalError("Unexpected SQLite column type: \(type)")
         }
+        
+        #if GRDBCUSTOMSQLITE
+            pointerValue = nil
+        #endif
+    }
+    
+    // 0-based index
+    func bind(at index: Int, in statement: Statement) {
+        let index = Int32(index + 1) // SQLite uses 1-based indexes
+        let code: Int32
+        switch storage {
+        case .null:
+            #if GRDBCUSTOMSQLITE
+                if let (pointer, type) = pointerValue {
+                    code = type.utf8Start.withMemoryRebound(to: Int8.self, capacity: type.utf8CodeUnitCount) { type in
+                        sqlite3_bind_pointer(statement.sqliteStatement, index, pointer, type)
+                    }
+                } else {
+                    code = sqlite3_bind_null(statement.sqliteStatement, index)
+                }
+            #else
+                code = sqlite3_bind_null(statement.sqliteStatement, index)
+            #endif
+        case .int64(let int64):
+            code = sqlite3_bind_int64(statement.sqliteStatement, index, int64)
+        case .double(let double):
+            code = sqlite3_bind_double(statement.sqliteStatement, index, double)
+        case .string(let string):
+            code = sqlite3_bind_text(statement.sqliteStatement, index, string, -1, SQLITE_TRANSIENT)
+        case .blob(let data):
+            code = data.withUnsafeBytes { bytes in
+                sqlite3_bind_blob(statement.sqliteStatement, index, bytes, Int32(data.count), SQLITE_TRANSIENT)
+            }
+        }
+        
+        // It looks like sqlite3_bind_xxx() functions do not access the file system.
+        // They should thus succeed, unless a GRDB bug: there is no point throwing any error.
+        guard code == SQLITE_OK else {
+            fatalError(DatabaseError(resultCode: code, message: statement.database.lastErrorMessage, sql: sql).description)
+        }
+    }
+
+    func setResult(inFunctionContext sqliteContext: OpaquePointer?) {
+        switch storage {
+        case .null:
+            #if GRDBCUSTOMSQLITE
+                if let (pointer, type) = pointerValue {
+                    type.utf8Start.withMemoryRebound(to: Int8.self, capacity: type.utf8CodeUnitCount) { type in
+                        sqlite3_result_pointer(sqliteContext, pointer, type)
+                    }
+                } else {
+                    sqlite3_result_null(sqliteContext)
+                }
+            #else
+                sqlite3_result_null(sqliteContext)
+            #endif
+        case .int64(let int64):
+            sqlite3_result_int64(sqliteContext, int64)
+        case .double(let double):
+            sqlite3_result_double(sqliteContext, double)
+        case .string(let string):
+            sqlite3_result_text(sqliteContext, string, -1, SQLITE_TRANSIENT)
+        case .blob(let data):
+            data.withUnsafeBytes { bytes in
+                sqlite3_result_blob(sqliteContext, bytes, Int32(data.count), SQLITE_TRANSIENT)
+            }
+        }
     }
 }
-
 
 // MARK: - Hashable & Equatable
 

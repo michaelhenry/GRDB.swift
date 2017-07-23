@@ -192,11 +192,10 @@ public final class DatabaseFunction {
             return { (sqliteContext, argc, argv) in
                 let definition = Unmanaged<FunctionDefinition>.fromOpaque(sqlite3_user_data(sqliteContext)).takeUnretainedValue()
                 do {
-                    try DatabaseFunction.report(
-                        result: definition.compute(argc, argv),
-                        in: sqliteContext)
+                    let dbValue = try definition.compute(argc, argv)?.databaseValue ?? .null
+                    dbValue.setResult(inFunctionContext: sqliteContext)
                 } catch {
-                    DatabaseFunction.report(error: error, in: sqliteContext)
+                    DatabaseFunction.setError(error, inFunctionContext: sqliteContext)
                 }
             }
         }
@@ -216,7 +215,7 @@ public final class DatabaseFunction {
                     try aggregateContext.aggregate.step(arguments)
                 } catch {
                     aggregateContext.hasErrored = true
-                    DatabaseFunction.report(error: error, in: sqliteContext)
+                    DatabaseFunction.setError(error, inFunctionContext: sqliteContext)
                 }
             }
         }
@@ -235,11 +234,10 @@ public final class DatabaseFunction {
                 }
                 
                 do {
-                    try DatabaseFunction.report(
-                        result: aggregateContext.aggregate.finalize(),
-                        in: sqliteContext)
+                    let dbValue = try aggregateContext.aggregate.finalize()?.databaseValue ?? .null
+                    dbValue.setResult(inFunctionContext: sqliteContext)
                 } catch {
-                    DatabaseFunction.report(error: error, in: sqliteContext)
+                    DatabaseFunction.setError(error, inFunctionContext: sqliteContext)
                 }
             }
         }
@@ -278,24 +276,7 @@ public final class DatabaseFunction {
         }
     }
     
-    private static func report(result: DatabaseValueConvertible?, in sqliteContext: OpaquePointer?) {
-        switch result?.databaseValue.storage ?? .null {
-        case .null:
-            sqlite3_result_null(sqliteContext)
-        case .int64(let int64):
-            sqlite3_result_int64(sqliteContext, int64)
-        case .double(let double):
-            sqlite3_result_double(sqliteContext, double)
-        case .string(let string):
-            sqlite3_result_text(sqliteContext, string, -1, SQLITE_TRANSIENT)
-        case .blob(let data):
-            data.withUnsafeBytes { bytes in
-                sqlite3_result_blob(sqliteContext, bytes, Int32(data.count), SQLITE_TRANSIENT)
-            }
-        }
-    }
-    
-    private static func report(error: Error, in sqliteContext: OpaquePointer?) {
+    private static func setError(_ error: Error, inFunctionContext sqliteContext: OpaquePointer?) {
         if let error = error as? DatabaseError {
             if let message = error.message {
                 sqlite3_result_error(sqliteContext, message, -1)

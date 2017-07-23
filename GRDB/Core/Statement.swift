@@ -125,12 +125,12 @@ public class Statement {
         
         var valuesIterator = arguments.values.makeIterator()
         for (index, argumentName) in sqliteArgumentNames.enumerated() {
-            if let argumentName = argumentName, let value = arguments.namedValues[argumentName] {
-                bind(value, at: index)
-            } else if let value = valuesIterator.next() {
-                bind(value, at: index)
+            if let argumentName = argumentName, let dbValue = arguments.namedValues[argumentName] {
+                dbValue.bind(at: index, in: self)
+            } else if let dbValue = valuesIterator.next() {
+                dbValue.bind(at: index, in: self)
             } else {
-                bind(.null, at: index)
+                DatabaseValue.null.bind(at: index, in: self)
             }
         }
     }
@@ -146,32 +146,7 @@ public class Statement {
         reset()
         clearBindings()
         for (index, dbValue) in bindings.enumerated() {
-            bind(dbValue, at: index)
-        }
-    }
-    
-    // 0-based index
-    private func bind(_ dbValue: DatabaseValue, at index: Int) {
-        let code: Int32
-        switch dbValue.storage {
-        case .null:
-            code = sqlite3_bind_null(sqliteStatement, Int32(index + 1))
-        case .int64(let int64):
-            code = sqlite3_bind_int64(sqliteStatement, Int32(index + 1), int64)
-        case .double(let double):
-            code = sqlite3_bind_double(sqliteStatement, Int32(index + 1), double)
-        case .string(let string):
-            code = sqlite3_bind_text(sqliteStatement, Int32(index + 1), string, -1, SQLITE_TRANSIENT)
-        case .blob(let data):
-            code = data.withUnsafeBytes { bytes in
-                sqlite3_bind_blob(sqliteStatement, Int32(index + 1), bytes, Int32(data.count), SQLITE_TRANSIENT)
-            }
-        }
-        
-        // It looks like sqlite3_bind_xxx() functions do not access the file system.
-        // They should thus succeed, unless a GRDB bug: there is no point throwing any error.
-        guard code == SQLITE_OK else {
-            fatalError(DatabaseError(resultCode: code, message: database.lastErrorMessage, sql: sql).description)
+            dbValue.bind(at: index, in: self)
         }
     }
     

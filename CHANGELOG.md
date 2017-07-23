@@ -1,6 +1,22 @@
 Release Notes
 =============
 
+## Next version
+
+**New**
+
+- Upgrade custom SQLite builds to [v3.20.0](http://www.sqlite.org/changes.html) (thanks to [@swiftlyfalling](https://github.com/swiftlyfalling/SQLiteLib)).
+- Support for the new pointer values through the new `DatabaseValue(pointer:type:)` initializer.
+
+**API diff**
+
+```diff
+ struct DatabaseValue {
++    init<T>(mutating pointer: UnsafeMutablePointer<T>, type: StaticString)
+ }
+```
+
+
 ## 1.2.2
 
 Released July 20, 2017

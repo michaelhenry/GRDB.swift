@@ -133,10 +133,12 @@
         }
         
         static func api(_ db: Database) throws -> UnsafePointer<fts5_api> {
-            guard let data = try Data.fetchOne(db, "SELECT fts5()") else {
-                throw DatabaseError(message: "FTS5 is not available")
+            var api: UnsafePointer<fts5_api>? = nil
+            try db.execute("SELECT fts5(?)", arguments: [DatabaseValue(mutating: &api, type: "fts5_api_ptr")])
+            if let api = api {
+                return api
             }
-            return data.withUnsafeBytes { $0.pointee }
+            throw DatabaseError(message: "FTS5 is not available")
         }
     }
     
